@@ -3,20 +3,26 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: SpendShield API — subscription analyzer and savings tracker
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: bills
+    description: Bank statement analysis
+  - name: subscriptions
+    description: Subscription management
+  - name: savings
+    description: Savings tracking
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +30,342 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /bills/analyze:
+    post:
+      operationId: analyzeBills
+      tags: [bills]
+      summary: Analyze bank statement text and detect subscriptions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BillAnalysisInput"
+      responses:
+        "200":
+          description: Detected subscriptions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BillAnalysisResult"
+        "400":
+          description: Bad request
+
+  /subscriptions:
+    get:
+      operationId: listSubscriptions
+      tags: [subscriptions]
+      summary: List all detected subscriptions for a session
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of subscriptions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Subscription"
+
+  /subscriptions/{id}:
+    get:
+      operationId: getSubscription
+      tags: [subscriptions]
+      summary: Get a single subscription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Subscription
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateSubscription
+      tags: [subscriptions]
+      summary: Update subscription status or details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscriptionUpdate"
+      responses:
+        "200":
+          description: Updated subscription
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+        "404":
+          description: Not found
+
+  /subscriptions/{id}/message:
+    get:
+      operationId: getSubscriptionMessage
+      tags: [subscriptions]
+      summary: Get the saved negotiation/cancellation message for a subscription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Negotiation message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NegotiationMessage"
+        "404":
+          description: No message generated yet
+    post:
+      operationId: generateSubscriptionMessage
+      tags: [subscriptions]
+      summary: Generate a negotiation or cancellation message for a subscription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageRequest"
+      responses:
+        "200":
+          description: Generated message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NegotiationMessage"
+        "404":
+          description: Subscription not found
+
+  /savings:
+    get:
+      operationId: listSavings
+      tags: [savings]
+      summary: List all savings records with totals
+      responses:
+        "200":
+          description: Savings list with totals
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavingsList"
+    post:
+      operationId: recordSaving
+      tags: [savings]
+      summary: Record money actually saved
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SavingInput"
+      responses:
+        "201":
+          description: Created saving record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Saving"
+
+  /savings/summary:
+    get:
+      operationId: getSavingsSummary
+      tags: [savings]
+      summary: Get aggregated savings summary — total saved, count, monthly breakdown
+      responses:
+        "200":
+          description: Savings summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavingsSummary"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    BillAnalysisInput:
+      type: object
+      required: [text, sessionId]
+      properties:
+        text:
+          type: string
+          description: Raw bank statement text to analyze
+        sessionId:
+          type: string
+          description: Client session identifier
+
+    BillAnalysisResult:
+      type: object
+      required: [sessionId, subscriptions, totalFound, totalFlagged]
+      properties:
+        sessionId:
+          type: string
+        subscriptions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Subscription"
+        totalFound:
+          type: integer
+        totalFlagged:
+          type: integer
+
+    Subscription:
+      type: object
+      required: [id, sessionId, name, amount, frequency, category, status, createdAt]
+      properties:
+        id:
+          type: integer
+        sessionId:
+          type: string
+        name:
+          type: string
+        amount:
+          type: number
+        frequency:
+          type: string
+          enum: [monthly, annual, weekly, unknown]
+        category:
+          type: string
+          enum: [streaming, fitness, software, food, finance, utility, gaming, education, other]
+        status:
+          type: string
+          enum: [active, flagged, cancelled, reviewing]
+        flagReason:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    SubscriptionUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [active, flagged, cancelled, reviewing]
+        notes:
+          type: string
+
+    NegotiationMessage:
+      type: object
+      required: [id, subscriptionId, messageType, message, createdAt]
+      properties:
+        id:
+          type: integer
+        subscriptionId:
+          type: integer
+        messageType:
+          type: string
+          enum: [cancel, negotiate, downgrade]
+        message:
+          type: string
+        createdAt:
+          type: string
+
+    MessageRequest:
+      type: object
+      required: [messageType]
+      properties:
+        messageType:
+          type: string
+          enum: [cancel, negotiate, downgrade]
+
+    Saving:
+      type: object
+      required: [id, subscriptionName, amountSaved, note, savedAt]
+      properties:
+        id:
+          type: integer
+        subscriptionId:
+          type: ["integer", "null"]
+        subscriptionName:
+          type: string
+        amountSaved:
+          type: number
+        note:
+          type: ["string", "null"]
+        savedAt:
+          type: string
+
+    SavingInput:
+      type: object
+      required: [subscriptionName, amountSaved]
+      properties:
+        subscriptionId:
+          type: integer
+        subscriptionName:
+          type: string
+        amountSaved:
+          type: number
+        note:
+          type: string
+
+    SavingsList:
+      type: object
+      required: [savings, totalSaved, count]
+      properties:
+        savings:
+          type: array
+          items:
+            $ref: "#/components/schemas/Saving"
+        totalSaved:
+          type: number
+        count:
+          type: integer
+
+    SavingsSummary:
+      type: object
+      required: [totalSaved, totalCount, thisMonthSaved, allTimeCount]
+      properties:
+        totalSaved:
+          type: number
+        totalCount:
+          type: integer
+        thisMonthSaved:
+          type: number
+        allTimeCount:
+          type: integer
+        monthlySavings:
+          type: array
+          items:
+            type: object
+            required: [month, amount]
+            properties:
+              month:
+                type: string
+              amount:
+                type: number
