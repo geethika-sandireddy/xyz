@@ -1,4 +1,5 @@
 import { Router, type IRouter } from "express";
+import { eq } from "drizzle-orm";
 import { db, subscriptionsTable } from "@workspace/db";
 import { AnalyzeBillsBody } from "@workspace/api-zod";
 import { detectSubscriptions } from "../../lib/subscriptionDetector.js";
