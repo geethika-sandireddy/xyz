@@ -1,59 +1,95 @@
-# Subscription_Analyzer
+# SpendShield — Subscription Analyzer
 
-What it does
-Upload your bank statement → AI finds subscriptions you're overpaying for or forgot about → generates ready-to-send cancellation/negotiation messages → you track money saved.
+> Stop overpaying on subscriptions. SpendShield analyzes your bank statements, flags unused or overpriced subscriptions, and drafts ready-to-send cancellation and negotiation messages.
 
-The App: Pages & Features
-Page	What's on it
-/ Home	Hero section explaining the tool, "Analyze my bills" CTA, how it works (3 steps), sample results teaser
-/analyze	Paste bank statement text OR upload PDF → click Analyze → see results
-/subscriptions	List of all detected subscriptions, each with: name, amount, status (active / flagged / cancelled), "Generate Message" button
-/savings	Dashboard — total money saved, list of wins ("Cancelled Hotstar — saved ₹299/month"), savings over time chart
-Tech Stack
-Layer	Tech
-Frontend	React + Vite, TypeScript
-UI	shadcn/ui components, Tailwind CSS
-Backend	Express 5 (Node.js / TypeScript)
-AI	Gemini (your API key)
-Database	PostgreSQL + Drizzle ORM
-PDF parsing	pdf-parse npm package
-File upload	multer npm package
-State/data fetching	TanStack React Query (auto-generated hooks)
-Database Schema
-subscriptions table
+## What It Does
 
-id, sessionId, name (e.g. Netflix), amount (₹), frequency (monthly/annual), category (streaming/fitness/etc), status (active/flagged/cancelled), flagReason, createdAt
-savings table
+1. **Upload your bank statement** — paste text or upload a PDF
+2. **AI scans for recurring charges** — Netflix, Spotify, gym, insurance, cloud storage, and more
+3. **Flags wasteful subscriptions** — unused, duplicate, or overpriced ones get highlighted
+4. **Drafts negotiation messages** — one click generates a polite but firm cancellation or discount request
+5. **Tracks money saved** — log every win and watch your savings grow
 
-id, subscriptionId, amountSaved, note, savedAt
-negotiation_messages table
+## Tech Stack
 
-id, subscriptionId, messageType (cancel/negotiate), message, createdAt
-API Endpoints
-Method	Endpoint	What it does
-POST	/api/bills/analyze	Send bank statement text → Gemini scans it → returns detected subscriptions
-GET	/api/subscriptions	List all subscriptions for a session
-PATCH	/api/subscriptions/:id	Update status (mark as cancelled, etc.)
-POST	/api/subscriptions/:id/message	Gemini drafts a cancellation/negotiation message
-GET	/api/subscriptions/:id/message	Get the saved message for a subscription
-POST	/api/savings	Record money actually saved
-GET	/api/savings	List all savings + total
-What Gemini Does (the AI layer)
-Analyze — reads raw bank statement text, identifies recurring charges, estimates if each is used/unused, flags high-risk ones
-Message drafting — given subscription name + amount + context, writes a polite but firm cancellation or discount request message tailored to Indian service providers
-Smart flagging — flags subscriptions that: appear duplicate, haven't been used in >3 months (inferred), or are priced above market rate for that service
+| Layer | Tech |
+|---|---|
+| Frontend | React 18 + Vite + TypeScript |
+| UI | shadcn/ui + Tailwind CSS |
+| Backend | Express 5 (Node.js / TypeScript) |
+| AI | Google Gemini API |
+| Database | PostgreSQL + Drizzle ORM |
+| File Parsing | pdf-parse + multer |
+| Data Fetching | TanStack React Query |
 
+## Project Structure
 
-Build Steps 
-Step 1 — Gemini API key (need this from you, securely stored)
-Step 2 — Create react-vite artifact (the frontend app)
-Step 3 — Write the OpenAPI spec (lib/api-spec/openapi.yaml)
-Step 4 — Run codegen → generates React Query hooks + Zod schemas
-Step 5 — Launch design subagent (builds the entire UI in the background)
-Step 6 — Simultaneously: build the backend routes + DB schema
-Step 7 — Wait for design subagent to finish
-Step 8 — Start both workflows (frontend + API server)
-Step 9 — Fix any integration issues, test end-to-end
-Step 10 — Present the finished app
+```
+├── artifacts/
+│   ├── spend-shield/       # React + Vite frontend
+│   └── api-server/         # Express backend
+├── lib/
+│   ├── api-spec/           # OpenAPI spec (source of truth)
+│   ├── api-client-react/   # Generated React Query hooks
+│   ├── api-zod/            # Generated Zod validation schemas
+│   └── db/                 # Drizzle ORM schema + client
+```
 
-Steps 5 and 6 run in parallel — the design subagent builds the frontend while I'm building the backend at the same time. That's how we get this done fast.
+## Getting Started
+
+### Prerequisites
+- Node.js 20+
+- pnpm 9+
+- PostgreSQL database
+
+### Setup
+
+```bash
+# Install dependencies
+pnpm install
+
+# Set environment variables
+cp .env.example .env
+# Fill in DATABASE_URL and GEMINI_API_KEY
+
+# Push database schema
+pnpm --filter @workspace/db run push
+
+# Run development servers
+pnpm --filter @workspace/api-server run dev
+pnpm --filter @workspace/spend-shield run dev
+```
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/bills/analyze` | Analyze bank statement text/PDF |
+| `GET` | `/api/subscriptions` | List all detected subscriptions |
+| `PATCH` | `/api/subscriptions/:id` | Update subscription status |
+| `POST` | `/api/subscriptions/:id/message` | Generate negotiation/cancellation message |
+| `GET` | `/api/subscriptions/:id/message` | Retrieve saved message |
+| `POST` | `/api/savings` | Record money saved |
+| `GET` | `/api/savings` | List all savings with totals |
+
+## Environment Variables
+
+```env
+DATABASE_URL=postgresql://...
+GEMINI_API_KEY=your_gemini_api_key_here
+SESSION_SECRET=a_random_secret_string
+```
+
+## Roadmap
+
+- [x] Bank statement parsing (text + PDF)
+- [x] Subscription detection with flagging logic
+- [x] Negotiation message drafting
+- [x] Savings tracking dashboard
+- [ ] v2: Local service price checker ("Is ₹800 fair for AC repair?")
+- [ ] v2: Community price database
+- [ ] v2: Email/WhatsApp message delivery
+
+## License
+
+MIT
