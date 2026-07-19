@@ -6,6 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface BillAnalysisInput {
+  /** Raw bank statement text to analyze */
+  text: string;
+  /** Client session identifier */
+  sessionId: string;
 }

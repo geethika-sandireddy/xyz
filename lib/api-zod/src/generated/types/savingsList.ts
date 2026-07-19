@@ -5,7 +5,10 @@
  * SpendShield API — subscription analyzer and savings tracker
  * OpenAPI spec version: 0.1.0
  */
+import type { Saving } from './saving';
 
-export interface HealthStatus {
-  status: string;
+export interface SavingsList {
+  savings: Saving[];
+  totalSaved: number;
+  count: number;
 }

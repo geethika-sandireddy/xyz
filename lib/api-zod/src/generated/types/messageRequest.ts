@@ -5,7 +5,8 @@
  * SpendShield API — subscription analyzer and savings tracker
  * OpenAPI spec version: 0.1.0
  */
+import type { MessageRequestMessageType } from './messageRequestMessageType';
 
-export interface HealthStatus {
-  status: string;
+export interface MessageRequest {
+  messageType: MessageRequestMessageType;
 }
