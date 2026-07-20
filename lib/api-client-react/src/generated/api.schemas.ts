@@ -155,7 +155,89 @@ export interface SavingsSummary {
   monthlySavings?: SavingsSummaryMonthlySavingsItem[];
 }
 
+export type RenewalFrequency = typeof RenewalFrequency[keyof typeof RenewalFrequency];
+
+
+export const RenewalFrequency = {
+  monthly: 'monthly',
+  annual: 'annual',
+  weekly: 'weekly',
+  one_time_trial: 'one_time_trial',
+} as const;
+
+export type RenewalStatus = typeof RenewalStatus[keyof typeof RenewalStatus];
+
+
+export const RenewalStatus = {
+  upcoming: 'upcoming',
+  reminded: 'reminded',
+  cancelled: 'cancelled',
+  renewed: 'renewed',
+  ignored: 'ignored',
+} as const;
+
+export interface Renewal {
+  id: number;
+  sessionId: string;
+  serviceName: string;
+  amount: number;
+  frequency: RenewalFrequency;
+  /** ISO date the trial converts or the subscription renews/auto-charges */
+  renewalDate: string;
+  isTrial: boolean;
+  status: RenewalStatus;
+  /** @nullable */
+  notes?: string | null;
+  createdAt: string;
+}
+
+export type RenewalInputFrequency = typeof RenewalInputFrequency[keyof typeof RenewalInputFrequency];
+
+
+export const RenewalInputFrequency = {
+  monthly: 'monthly',
+  annual: 'annual',
+  weekly: 'weekly',
+  one_time_trial: 'one_time_trial',
+} as const;
+
+export interface RenewalInput {
+  sessionId: string;
+  serviceName: string;
+  amount: number;
+  frequency?: RenewalInputFrequency;
+  renewalDate: string;
+  isTrial?: boolean;
+  notes?: string;
+}
+
+export type RenewalUpdateStatus = typeof RenewalUpdateStatus[keyof typeof RenewalUpdateStatus];
+
+
+export const RenewalUpdateStatus = {
+  upcoming: 'upcoming',
+  reminded: 'reminded',
+  cancelled: 'cancelled',
+  renewed: 'renewed',
+  ignored: 'ignored',
+} as const;
+
+export interface RenewalUpdate {
+  status?: RenewalUpdateStatus;
+  renewalDate?: string;
+  notes?: string;
+}
+
 export type ListSubscriptionsParams = {
 sessionId: string;
+};
+
+export type ListRenewalsParams = {
+sessionId: string;
+};
+
+export type ListUpcomingRenewalsParams = {
+sessionId: string;
+days?: number;
 };
 

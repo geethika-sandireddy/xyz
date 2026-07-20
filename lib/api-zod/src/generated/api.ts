@@ -200,3 +200,130 @@ export const GetSavingsSummaryResponse = zod.object({
 })
 
 
+/**
+ * @summary List all tracked renewals/trials for a session
+ */
+export const ListRenewalsQueryParams = zod.object({
+  "sessionId": zod.coerce.string()
+})
+
+export const ListRenewalsResponseItem = zod.object({
+  "id": zod.number(),
+  "sessionId": zod.string(),
+  "serviceName": zod.string(),
+  "amount": zod.number(),
+  "frequency": zod.enum(['monthly', 'annual', 'weekly', 'one_time_trial']),
+  "renewalDate": zod.string().describe('ISO date the trial converts or the subscription renews\/auto-charges'),
+  "isTrial": zod.boolean(),
+  "status": zod.enum(['upcoming', 'reminded', 'cancelled', 'renewed', 'ignored']),
+  "notes": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+export const ListRenewalsResponse = zod.array(ListRenewalsResponseItem)
+
+
+/**
+ * @summary Track a new trial or upcoming renewal
+ */
+export const CreateRenewalBody = zod.object({
+  "sessionId": zod.string(),
+  "serviceName": zod.string(),
+  "amount": zod.number(),
+  "frequency": zod.enum(['monthly', 'annual', 'weekly', 'one_time_trial']).optional(),
+  "renewalDate": zod.string(),
+  "isTrial": zod.boolean().optional(),
+  "notes": zod.string().optional()
+})
+
+export const CreateRenewalResponse = zod.object({
+  "id": zod.number(),
+  "sessionId": zod.string(),
+  "serviceName": zod.string(),
+  "amount": zod.number(),
+  "frequency": zod.enum(['monthly', 'annual', 'weekly', 'one_time_trial']),
+  "renewalDate": zod.string().describe('ISO date the trial converts or the subscription renews\/auto-charges'),
+  "isTrial": zod.boolean(),
+  "status": zod.enum(['upcoming', 'reminded', 'cancelled', 'renewed', 'ignored']),
+  "notes": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary List renewals due within N days — the alert feed
+ */
+export const listUpcomingRenewalsQueryDaysDefault = 3;
+
+export const ListUpcomingRenewalsQueryParams = zod.object({
+  "sessionId": zod.coerce.string(),
+  "days": zod.coerce.number().default(listUpcomingRenewalsQueryDaysDefault)
+})
+
+export const ListUpcomingRenewalsResponseItem = zod.object({
+  "id": zod.number(),
+  "sessionId": zod.string(),
+  "serviceName": zod.string(),
+  "amount": zod.number(),
+  "frequency": zod.enum(['monthly', 'annual', 'weekly', 'one_time_trial']),
+  "renewalDate": zod.string().describe('ISO date the trial converts or the subscription renews\/auto-charges'),
+  "isTrial": zod.boolean(),
+  "status": zod.enum(['upcoming', 'reminded', 'cancelled', 'renewed', 'ignored']),
+  "notes": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+export const ListUpcomingRenewalsResponse = zod.array(ListUpcomingRenewalsResponseItem)
+
+
+/**
+ * @summary Update a renewal's status (e.g. mark cancelled, renewed, ignored)
+ */
+export const UpdateRenewalParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateRenewalBody = zod.object({
+  "status": zod.enum(['upcoming', 'reminded', 'cancelled', 'renewed', 'ignored']).optional(),
+  "renewalDate": zod.string().optional(),
+  "notes": zod.string().optional()
+})
+
+export const UpdateRenewalResponse = zod.object({
+  "id": zod.number(),
+  "sessionId": zod.string(),
+  "serviceName": zod.string(),
+  "amount": zod.number(),
+  "frequency": zod.enum(['monthly', 'annual', 'weekly', 'one_time_trial']),
+  "renewalDate": zod.string().describe('ISO date the trial converts or the subscription renews\/auto-charges'),
+  "isTrial": zod.boolean(),
+  "status": zod.enum(['upcoming', 'reminded', 'cancelled', 'renewed', 'ignored']),
+  "notes": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Remove a tracked renewal
+ */
+export const DeleteRenewalParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteRenewalResponse = zod.void()
+
+
+/**
+ * @summary Generate a cancel-before-renewal message for a trial/renewal
+ */
+export const GenerateRenewalMessageParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GenerateRenewalMessageResponse = zod.object({
+  "id": zod.number(),
+  "subscriptionId": zod.number(),
+  "messageType": zod.enum(['cancel', 'negotiate', 'downgrade']),
+  "message": zod.string(),
+  "createdAt": zod.string()
+})
+
+

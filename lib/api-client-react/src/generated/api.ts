@@ -23,9 +23,14 @@ import type {
   BillAnalysisInput,
   BillAnalysisResult,
   HealthStatus,
+  ListRenewalsParams,
   ListSubscriptionsParams,
+  ListUpcomingRenewalsParams,
   MessageRequest,
   NegotiationMessage,
+  Renewal,
+  RenewalInput,
+  RenewalUpdate,
   Saving,
   SavingInput,
   SavingsList,
@@ -815,4 +820,457 @@ export function useGetSavingsSummary<TData = Awaited<ReturnType<typeof getSaving
 
 
 
+
+export const getListRenewalsUrl = (params: ListRenewalsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/renewals?${stringifiedParams}` : `/api/renewals`
+}
+
+/**
+ * @summary List all tracked renewals/trials for a session
+ */
+export const listRenewals = async (params: ListRenewalsParams, options?: RequestInit): Promise<Renewal[]> => {
+
+  return customFetch<Renewal[]>(getListRenewalsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListRenewalsQueryKey = (params?: ListRenewalsParams,) => {
+    return [
+    `/api/renewals`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListRenewalsQueryOptions = <TData = Awaited<ReturnType<typeof listRenewals>>, TError = ErrorType<unknown>>(params: ListRenewalsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listRenewals>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListRenewalsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listRenewals>>> = ({ signal }) => listRenewals(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listRenewals>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListRenewalsQueryResult = NonNullable<Awaited<ReturnType<typeof listRenewals>>>
+export type ListRenewalsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List all tracked renewals/trials for a session
+ */
+
+export function useListRenewals<TData = Awaited<ReturnType<typeof listRenewals>>, TError = ErrorType<unknown>>(
+ params: ListRenewalsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listRenewals>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListRenewalsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateRenewalUrl = () => {
+
+
+
+
+  return `/api/renewals`
+}
+
+/**
+ * @summary Track a new trial or upcoming renewal
+ */
+export const createRenewal = async (renewalInput: RenewalInput, options?: RequestInit): Promise<Renewal> => {
+
+  return customFetch<Renewal>(getCreateRenewalUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(renewalInput)
+  }
+);}
+
+
+
+
+
+export const getCreateRenewalMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createRenewal>>, TError,{data: BodyType<RenewalInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createRenewal>>, TError,{data: BodyType<RenewalInput>}, TContext> => {
+
+const mutationKey = ['createRenewal'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createRenewal>>, {data: BodyType<RenewalInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createRenewal(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateRenewalMutationResult = NonNullable<Awaited<ReturnType<typeof createRenewal>>>
+    export type CreateRenewalMutationBody = BodyType<RenewalInput>
+    export type CreateRenewalMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Track a new trial or upcoming renewal
+ */
+export const useCreateRenewal = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createRenewal>>, TError,{data: BodyType<RenewalInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createRenewal>>,
+        TError,
+        {data: BodyType<RenewalInput>},
+        TContext
+      > => {
+      return useMutation(getCreateRenewalMutationOptions(options));
+    }
+
+export const getListUpcomingRenewalsUrl = (params: ListUpcomingRenewalsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/renewals/upcoming?${stringifiedParams}` : `/api/renewals/upcoming`
+}
+
+/**
+ * @summary List renewals due within N days — the alert feed
+ */
+export const listUpcomingRenewals = async (params: ListUpcomingRenewalsParams, options?: RequestInit): Promise<Renewal[]> => {
+
+  return customFetch<Renewal[]>(getListUpcomingRenewalsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListUpcomingRenewalsQueryKey = (params?: ListUpcomingRenewalsParams,) => {
+    return [
+    `/api/renewals/upcoming`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListUpcomingRenewalsQueryOptions = <TData = Awaited<ReturnType<typeof listUpcomingRenewals>>, TError = ErrorType<unknown>>(params: ListUpcomingRenewalsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listUpcomingRenewals>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListUpcomingRenewalsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listUpcomingRenewals>>> = ({ signal }) => listUpcomingRenewals(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listUpcomingRenewals>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListUpcomingRenewalsQueryResult = NonNullable<Awaited<ReturnType<typeof listUpcomingRenewals>>>
+export type ListUpcomingRenewalsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List renewals due within N days — the alert feed
+ */
+
+export function useListUpcomingRenewals<TData = Awaited<ReturnType<typeof listUpcomingRenewals>>, TError = ErrorType<unknown>>(
+ params: ListUpcomingRenewalsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listUpcomingRenewals>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListUpcomingRenewalsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateRenewalUrl = (id: number,) => {
+
+
+
+
+  return `/api/renewals/${id}`
+}
+
+/**
+ * @summary Update a renewal's status (e.g. mark cancelled, renewed, ignored)
+ */
+export const updateRenewal = async (id: number,
+    renewalUpdate: RenewalUpdate, options?: RequestInit): Promise<Renewal> => {
+
+  return customFetch<Renewal>(getUpdateRenewalUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(renewalUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateRenewalMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRenewal>>, TError,{id: number;data: BodyType<RenewalUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateRenewal>>, TError,{id: number;data: BodyType<RenewalUpdate>}, TContext> => {
+
+const mutationKey = ['updateRenewal'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateRenewal>>, {id: number;data: BodyType<RenewalUpdate>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateRenewal(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateRenewalMutationResult = NonNullable<Awaited<ReturnType<typeof updateRenewal>>>
+    export type UpdateRenewalMutationBody = BodyType<RenewalUpdate>
+    export type UpdateRenewalMutationError = ErrorType<void>
+
+    /**
+ * @summary Update a renewal's status (e.g. mark cancelled, renewed, ignored)
+ */
+export const useUpdateRenewal = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRenewal>>, TError,{id: number;data: BodyType<RenewalUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateRenewal>>,
+        TError,
+        {id: number;data: BodyType<RenewalUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateRenewalMutationOptions(options));
+    }
+
+export const getDeleteRenewalUrl = (id: number,) => {
+
+
+
+
+  return `/api/renewals/${id}`
+}
+
+/**
+ * @summary Remove a tracked renewal
+ */
+export const deleteRenewal = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteRenewalUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteRenewalMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRenewal>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteRenewal>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteRenewal'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteRenewal>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteRenewal(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteRenewalMutationResult = NonNullable<Awaited<ReturnType<typeof deleteRenewal>>>
+
+    export type DeleteRenewalMutationError = ErrorType<void>
+
+    /**
+ * @summary Remove a tracked renewal
+ */
+export const useDeleteRenewal = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRenewal>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteRenewal>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteRenewalMutationOptions(options));
+    }
+
+export const getGenerateRenewalMessageUrl = (id: number,) => {
+
+
+
+
+  return `/api/renewals/${id}/message`
+}
+
+/**
+ * @summary Generate a cancel-before-renewal message for a trial/renewal
+ */
+export const generateRenewalMessage = async (id: number, options?: RequestInit): Promise<NegotiationMessage> => {
+
+  return customFetch<NegotiationMessage>(getGenerateRenewalMessageUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getGenerateRenewalMessageMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateRenewalMessage>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateRenewalMessage>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['generateRenewalMessage'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateRenewalMessage>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  generateRenewalMessage(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GenerateRenewalMessageMutationResult = NonNullable<Awaited<ReturnType<typeof generateRenewalMessage>>>
+
+    export type GenerateRenewalMessageMutationError = ErrorType<void>
+
+    /**
+ * @summary Generate a cancel-before-renewal message for a trial/renewal
+ */
+export const useGenerateRenewalMessage = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateRenewalMessage>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof generateRenewalMessage>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getGenerateRenewalMessageMutationOptions(options));
+    }
 

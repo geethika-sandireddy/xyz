@@ -16,6 +16,8 @@ tags:
     description: Subscription management
   - name: savings
     description: Savings tracking
+  - name: renewals
+    description: Renewal Watch — trial and subscription renewal tracking
 
 paths:
   /healthz:
@@ -208,6 +210,134 @@ paths:
               schema:
                 $ref: "#/components/schemas/SavingsSummary"
 
+  /renewals:
+    get:
+      operationId: listRenewals
+      tags: [renewals]
+      summary: List all tracked renewals/trials for a session
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of renewals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Renewal"
+    post:
+      operationId: createRenewal
+      tags: [renewals]
+      summary: Track a new trial or upcoming renewal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RenewalInput"
+      responses:
+        "201":
+          description: Created renewal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Renewal"
+
+  /renewals/upcoming:
+    get:
+      operationId: listUpcomingRenewals
+      tags: [renewals]
+      summary: List renewals due within N days — the alert feed
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: days
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 3
+      responses:
+        "200":
+          description: Upcoming renewals within the window
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Renewal"
+
+  /renewals/{id}:
+    patch:
+      operationId: updateRenewal
+      tags: [renewals]
+      summary: Update a renewal's status (e.g. mark cancelled, renewed, ignored)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RenewalUpdate"
+      responses:
+        "200":
+          description: Updated renewal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Renewal"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteRenewal
+      tags: [renewals]
+      summary: Remove a tracked renewal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /renewals/{id}/message:
+    post:
+      operationId: generateRenewalMessage
+      tags: [renewals]
+      summary: Generate a cancel-before-renewal message for a trial/renewal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Generated message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NegotiationMessage"
+        "404":
+          description: Renewal not found
+
 components:
   schemas:
     HealthStatus:
@@ -369,3 +499,62 @@ components:
                 type: string
               amount:
                 type: number
+
+    Renewal:
+      type: object
+      required: [id, sessionId, serviceName, amount, frequency, renewalDate, isTrial, status, createdAt]
+      properties:
+        id:
+          type: integer
+        sessionId:
+          type: string
+        serviceName:
+          type: string
+        amount:
+          type: number
+        frequency:
+          type: string
+          enum: [monthly, annual, weekly, one_time_trial]
+        renewalDate:
+          type: string
+          description: ISO date the trial converts or the subscription renews/auto-charges
+        isTrial:
+          type: boolean
+        status:
+          type: string
+          enum: [upcoming, reminded, cancelled, renewed, ignored]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    RenewalInput:
+      type: object
+      required: [sessionId, serviceName, amount, renewalDate]
+      properties:
+        sessionId:
+          type: string
+        serviceName:
+          type: string
+        amount:
+          type: number
+        frequency:
+          type: string
+          enum: [monthly, annual, weekly, one_time_trial]
+        renewalDate:
+          type: string
+        isTrial:
+          type: boolean
+        notes:
+          type: string
+
+    RenewalUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [upcoming, reminded, cancelled, renewed, ignored]
+        renewalDate:
+          type: string
+        notes:
+          type: string
