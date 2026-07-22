@@ -9,6 +9,7 @@ import Home from '@/pages/home';
 import Analyze from '@/pages/analyze';
 import Subscriptions from '@/pages/subscriptions';
 import Savings from '@/pages/savings';
+import Renewals from '@/pages/renewals';
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/analyze" component={Analyze} />
         <Route path="/subscriptions" component={Subscriptions} />
+        <Route path="/renewals" component={Renewals} />
         <Route path="/savings" component={Savings} />
         <Route component={NotFound} />
       </Switch>

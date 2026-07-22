@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Shield, LayoutDashboard, Search, List, PieChart } from "lucide-react";
+import { Shield, LayoutDashboard, Search, List, PieChart, AlarmClock } from "lucide-react";
 import { useSession } from "../hooks/use-session";
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -8,6 +8,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const navItems = [
     { href: "/analyze", label: "Analyze", icon: Search },
     { href: "/subscriptions", label: "Subscriptions", icon: List },
+    { href: "/renewals", label: "Renewals", icon: AlarmClock },
     { href: "/savings", label: "Savings", icon: PieChart },
   ];
 
