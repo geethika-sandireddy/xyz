@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, and, gte, lte, asc } from "drizzle-orm";
-import { db, renewalsTable } from "@workspace/db";
+import { db, renewalsTable, savingsTable } from "@workspace/db";
 import {
   ListRenewalsQueryParams,
   CreateRenewalBody,
@@ -123,6 +123,20 @@ router.patch("/renewals/:id", async (req, res): Promise<void> => {
   if (!updated) {
     res.status(404).json({ error: "Renewal not found" });
     return;
+  }
+
+  // Cancelling a trial/renewal before it charges is a real, provable save —
+  // log it to the Savings ledger automatically so it shows up alongside
+  // subscription cancellations.
+  if (body.data.status === "cancelled") {
+    await db.insert(savingsTable).values({
+      subscriptionId: null,
+      subscriptionName: updated.serviceName,
+      amountSaved: updated.amount,
+      note: updated.isTrial
+        ? "Avoided charge by cancelling free trial before it converted"
+        : "Cancelled before renewal via Renewal Watch",
+    });
   }
 
   res.json(serialize(updated));

@@ -347,7 +347,10 @@ export default function Renewals() {
                           variant="outline"
                           size="sm"
                           className="gap-2"
-                          onClick={() => updateMutation.mutate({ id: r.id, data: { status: "cancelled" } })}
+                          onClick={() => {
+                            updateMutation.mutate({ id: r.id, data: { status: "cancelled" } });
+                            toast.success(`Logged ${formatINR(r.amount)} saved`);
+                          }}
                         >
                           <XCircle className="w-4 h-4" /> Mark Cancelled
                         </Button>
