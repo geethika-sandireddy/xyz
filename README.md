@@ -9,6 +9,7 @@
 3. **Flags wasteful subscriptions** — unused, duplicate, or overpriced ones get highlighted
 4. **Drafts negotiation messages** — one click generates a polite but firm cancellation or discount request
 5. **Tracks money saved** — log every win and watch your savings grow
+6. **Renewal Watch** — track free trials and upcoming renewals so you're reminded *before* you get charged, not after. Cancelling in time auto-logs the saved amount to your Savings ledger.
 
 ## Tech Stack
 
@@ -71,6 +72,12 @@ pnpm --filter @workspace/spend-shield run dev
 | `GET` | `/api/subscriptions/:id/message` | Retrieve saved message |
 | `POST` | `/api/savings` | Record money saved |
 | `GET` | `/api/savings` | List all savings with totals |
+| `GET` | `/api/renewals` | List all tracked trials/renewals |
+| `POST` | `/api/renewals` | Start tracking a trial or upcoming renewal |
+| `GET` | `/api/renewals/upcoming` | Alert feed — renewals due within N days |
+| `PATCH` | `/api/renewals/:id` | Update status (cancelled/renewed/ignored) — cancelling logs a save |
+| `DELETE` | `/api/renewals/:id` | Stop tracking a renewal |
+| `POST` | `/api/renewals/:id/message` | Generate a cancel-before-renewal message |
 
 ## Environment Variables
 
@@ -86,9 +93,21 @@ SESSION_SECRET=a_random_secret_string
 - [x] Subscription detection with flagging logic
 - [x] Negotiation message drafting
 - [x] Savings tracking dashboard
+- [x] Renewal Watch — trial/renewal alerts before you're charged
+- [ ] Deal Watch — live search for promos/offers matching your subscriptions
+- [ ] Bundle optimizer — flag when switching to a bundle plan is cheaper
+- [ ] Refund hunter — draft a refund request when you got charged after forgetting to cancel
+- [ ] Price-hike detector — catch silent price increases on recurring bills
+- [ ] Calendar integration — push renewal dates as backup alerts
+- [ ] Budgeting module — income, fixed expenses, savings goals, remaining-balance estimator
+- [ ] Loans & tax section (estimate only, not financial/tax advice)
+- [ ] Family/shared plan matcher
+- [ ] Email/screenshot auto-parsing for trial signups (no manual entry)
 - [ ] v2: Local service price checker ("Is ₹800 fair for AC repair?")
 - [ ] v2: Community price database
 - [ ] v2: Email/WhatsApp message delivery
+- [ ] v2: WhatsApp/SMS bot interface
+- [ ] v2: Public negotiation-tactic leaderboard (anonymized)
 
 ## License
 
