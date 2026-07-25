@@ -31,6 +31,7 @@ router.get("/subscriptions", async (req, res): Promise<void> => {
   res.json(subs.map(s => ({
     ...s,
     amount: parseFloat(s.amount),
+    previousAmount: s.previousAmount ? parseFloat(s.previousAmount) : null,
     createdAt: s.createdAt.toISOString(),
   })));
 });
@@ -53,7 +54,7 @@ router.get("/subscriptions/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  res.json({ ...sub, amount: parseFloat(sub.amount), createdAt: sub.createdAt.toISOString() });
+  res.json({ ...sub, amount: parseFloat(sub.amount), previousAmount: sub.previousAmount ? parseFloat(sub.previousAmount) : null, createdAt: sub.createdAt.toISOString() });
 });
 
 // PATCH /subscriptions/:id
@@ -70,9 +71,35 @@ router.patch("/subscriptions/:id", async (req, res): Promise<void> => {
     return;
   }
 
+  const [existing] = await db
+    .select()
+    .from(subscriptionsTable)
+    .where(eq(subscriptionsTable.id, params.data.id));
+
+  if (!existing) {
+    res.status(404).json({ error: "Subscription not found" });
+    return;
+  }
+
+  const updates: Partial<typeof subscriptionsTable.$inferInsert> = { ...body.data } as any;
+
+  // Price-Hike Detector: if the incoming amount is genuinely higher than
+  // what's on record, remember the old price and flag it so the user
+  // notices the silent increase instead of just eating the extra cost.
+  if (body.data.amount !== undefined) {
+    const oldAmount = parseFloat(existing.amount);
+    const newAmount = body.data.amount;
+    if (newAmount > oldAmount) {
+      updates.previousAmount = String(oldAmount);
+      updates.status = "flagged";
+      updates.flagReason = `Price increased from ₹${oldAmount.toLocaleString("en-IN")} to ₹${newAmount.toLocaleString("en-IN")}`;
+    }
+    updates.amount = String(newAmount) as any;
+  }
+
   const [updated] = await db
     .update(subscriptionsTable)
-    .set(body.data)
+    .set(updates)
     .where(eq(subscriptionsTable.id, params.data.id))
     .returning();
 
@@ -81,7 +108,7 @@ router.patch("/subscriptions/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  res.json({ ...updated, amount: parseFloat(updated.amount), createdAt: updated.createdAt.toISOString() });
+  res.json({ ...updated, amount: parseFloat(updated.amount), previousAmount: updated.previousAmount ? parseFloat(updated.previousAmount) : null, createdAt: updated.createdAt.toISOString() });
 });
 
 // POST /subscriptions/:id/message — generate a negotiation/cancellation message
