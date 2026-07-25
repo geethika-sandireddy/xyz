@@ -13,4 +13,5 @@ export const MessageRequestMessageType = {
   cancel: 'cancel',
   negotiate: 'negotiate',
   downgrade: 'downgrade',
+  refund: 'refund',
 } as const;

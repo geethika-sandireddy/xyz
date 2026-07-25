@@ -587,7 +587,7 @@ components:
           type: integer
         messageType:
           type: string
-          enum: [cancel, negotiate, downgrade]
+          enum: [cancel, negotiate, downgrade, refund]
         message:
           type: string
         createdAt:
@@ -599,7 +599,7 @@ components:
       properties:
         messageType:
           type: string
-          enum: [cancel, negotiate, downgrade]
+          enum: [cancel, negotiate, downgrade, refund]
 
     Saving:
       type: object

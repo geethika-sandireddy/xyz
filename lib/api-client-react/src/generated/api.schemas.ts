@@ -95,6 +95,7 @@ export const NegotiationMessageMessageType = {
   cancel: 'cancel',
   negotiate: 'negotiate',
   downgrade: 'downgrade',
+  refund: 'refund',
 } as const;
 
 export interface NegotiationMessage {
@@ -112,6 +113,7 @@ export const MessageRequestMessageType = {
   cancel: 'cancel',
   negotiate: 'negotiate',
   downgrade: 'downgrade',
+  refund: 'refund',
 } as const;
 
 export interface MessageRequest {

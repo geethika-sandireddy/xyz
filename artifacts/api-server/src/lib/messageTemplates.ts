@@ -45,6 +45,22 @@ const downgradeTemplates: Record<string, string[]> = {
   ],
 };
 
+// Refund Hunter: for charges that already happened — a forgotten trial that
+// converted, or a renewal the user meant to cancel. Framed as a good-faith,
+// first-time request citing the company's own goodwill policies, since most
+// providers will refund within a short window if asked promptly and politely.
+const refundTemplates: Record<string, string[]> = {
+  streaming: [
+    `Hi {service} Support,\n\nI was charged ₹{amount} for my {freq} subscription, but I had intended to cancel before this renewal and missed the window by a short margin.\n\nAs this was an honest oversight and I haven't used the service since the renewal, I'd really appreciate a refund for this charge as a one-time goodwill gesture. I've already cancelled auto-renewal to avoid this in future.\n\nThank you for considering this.`,
+  ],
+  default: [
+    `Hi {service} Team,\n\nI noticed I was charged ₹{amount} for my {freq} plan, which I meant to cancel before the renewal date but missed by a short margin.\n\nSince this was unintentional and I haven't used the service after the charge, could you please process a refund as a one-time exception? I've now turned off auto-renewal so this doesn't happen again.\n\nI'd appreciate your help with this — thank you.`,
+  ],
+  fitness: [
+    `Hi,\n\nI was charged ₹{amount} for my {service} membership renewal, which I had intended to cancel in advance but missed the deadline.\n\nAs I haven't used the facility since this charge, I wanted to ask if a refund is possible as a one-time exception. I've cancelled the auto-renewal going forward.\n\nThanks for your understanding.`,
+  ],
+};
+
 function pickTemplate(templates: Record<string, string[]>, category: string): string {
   const pool = templates[category] ?? templates["default"] ?? ["Please contact {service} to {action} your subscription of ₹{amount}/{freq}."];
   return pool[Math.floor(Math.random() * pool.length)];
@@ -59,7 +75,7 @@ function fillTemplate(template: string, ctx: MessageContext): string {
 }
 
 export function generateMessage(
-  type: "cancel" | "negotiate" | "downgrade",
+  type: "cancel" | "negotiate" | "downgrade" | "refund",
   ctx: MessageContext,
   category: string = "other"
 ): string {
@@ -69,6 +85,8 @@ export function generateMessage(
     template = pickTemplate(cancelTemplates, category);
   } else if (type === "negotiate") {
     template = pickTemplate(negotiateTemplates, category);
+  } else if (type === "refund") {
+    template = pickTemplate(refundTemplates, category);
   } else {
     template = pickTemplate(downgradeTemplates, category);
   }

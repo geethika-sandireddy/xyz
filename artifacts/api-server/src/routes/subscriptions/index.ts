@@ -109,7 +109,7 @@ router.post("/subscriptions/:id/message", async (req, res): Promise<void> => {
   }
 
   const message = generateMessage(
-    body.data.messageType as "cancel" | "negotiate" | "downgrade",
+    body.data.messageType as "cancel" | "negotiate" | "downgrade" | "refund",
     { serviceName: sub.name, amount: parseFloat(sub.amount), frequency: sub.frequency },
     sub.category
   );

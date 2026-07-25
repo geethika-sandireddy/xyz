@@ -122,7 +122,7 @@ export const GetSubscriptionMessageParams = zod.object({
 export const GetSubscriptionMessageResponse = zod.object({
   "id": zod.number(),
   "subscriptionId": zod.number(),
-  "messageType": zod.enum(['cancel', 'negotiate', 'downgrade']),
+  "messageType": zod.enum(['cancel', 'negotiate', 'downgrade', 'refund']),
   "message": zod.string(),
   "createdAt": zod.string()
 })
@@ -136,13 +136,13 @@ export const GenerateSubscriptionMessageParams = zod.object({
 })
 
 export const GenerateSubscriptionMessageBody = zod.object({
-  "messageType": zod.enum(['cancel', 'negotiate', 'downgrade'])
+  "messageType": zod.enum(['cancel', 'negotiate', 'downgrade', 'refund'])
 })
 
 export const GenerateSubscriptionMessageResponse = zod.object({
   "id": zod.number(),
   "subscriptionId": zod.number(),
-  "messageType": zod.enum(['cancel', 'negotiate', 'downgrade']),
+  "messageType": zod.enum(['cancel', 'negotiate', 'downgrade', 'refund']),
   "message": zod.string(),
   "createdAt": zod.string()
 })
@@ -321,7 +321,7 @@ export const GenerateRenewalMessageParams = zod.object({
 export const GenerateRenewalMessageResponse = zod.object({
   "id": zod.number(),
   "subscriptionId": zod.number(),
-  "messageType": zod.enum(['cancel', 'negotiate', 'downgrade']),
+  "messageType": zod.enum(['cancel', 'negotiate', 'downgrade', 'refund']),
   "message": zod.string(),
   "createdAt": zod.string()
 })
