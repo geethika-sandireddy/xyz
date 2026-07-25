@@ -9,8 +9,17 @@ import {
   GenerateSubscriptionMessageParams,
   GenerateSubscriptionMessageBody,
   GetSubscriptionMessageParams,
+  GetBundleSuggestionsQueryParams,
 } from "@workspace/api-zod";
 import { generateMessage } from "../../lib/messageTemplates.js";
+
+// Category-specific advice for what a bundle/combo could replace these with.
+// Kept simple and India-relevant since that's who most detected services target.
+const BUNDLE_ADVICE: Record<string, string> = {
+  streaming: "Several telecom postpaid/broadband plans in India (Jio, Airtel, Vi) bundle in one or more OTT subscriptions for free — check if your existing plan already includes one of these before paying separately.",
+  fitness: "Some fitness aggregator apps (like a single all-access pass) can replace multiple single-gym memberships at a lower combined cost — worth comparing against paying each individually.",
+  software: "Check if your employer, college, or an existing software suite (e.g. Google Workspace, Microsoft 365) already includes one of these tools for free.",
+};
 
 const router: IRouter = Router();
 
@@ -34,6 +43,53 @@ router.get("/subscriptions", async (req, res): Promise<void> => {
     previousAmount: s.previousAmount ? parseFloat(s.previousAmount) : null,
     createdAt: s.createdAt.toISOString(),
   })));
+});
+
+// GET /subscriptions/bundle-suggestions?sessionId=...
+// Bundle Optimizer: groups active subscriptions by category and flags
+// categories with 2+ subscriptions as worth checking against a bundle/combo.
+// NOTE: this must be registered before GET /subscriptions/:id, otherwise
+// Express matches "bundle-suggestions" as the :id param.
+router.get("/subscriptions/bundle-suggestions", async (req, res): Promise<void> => {
+  const parsed = GetBundleSuggestionsQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "sessionId is required" });
+    return;
+  }
+
+  const subs = await db
+    .select()
+    .from(subscriptionsTable)
+    .where(eq(subscriptionsTable.sessionId, parsed.data.sessionId));
+
+  const active = subs.filter(s => s.status === "active" || s.status === "flagged");
+
+  const byCategory = new Map<string, typeof active>();
+  for (const s of active) {
+    const list = byCategory.get(s.category) ?? [];
+    list.push(s);
+    byCategory.set(s.category, list);
+  }
+
+  const suggestions = Array.from(byCategory.entries())
+    .filter(([, items]) => items.length >= 2)
+    .map(([category, items]) => {
+      const combinedMonthlyCost = items.reduce((sum, s) => {
+        const amt = parseFloat(s.amount);
+        if (s.frequency === "annual") return sum + amt / 12;
+        if (s.frequency === "weekly") return sum + amt * 4.33;
+        return sum + amt;
+      }, 0);
+
+      return {
+        category,
+        subscriptions: items.map(s => s.name),
+        combinedMonthlyCost: Math.round(combinedMonthlyCost * 100) / 100,
+        message: BUNDLE_ADVICE[category] ?? `You have ${items.length} ${category} subscriptions active — worth checking if a combined plan or bundle covers all of them for less than ₹${Math.round(combinedMonthlyCost)}/mo combined.`,
+      };
+    });
+
+  res.json(suggestions);
 });
 
 // GET /subscriptions/:id
