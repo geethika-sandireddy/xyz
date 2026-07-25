@@ -228,6 +228,103 @@ export interface RenewalUpdate {
   notes?: string;
 }
 
+export interface BudgetProfile {
+  sessionId: string;
+  monthlyIncome: number;
+  savingsTarget: number;
+  updatedAt?: string;
+}
+
+export interface BudgetProfileInput {
+  sessionId: string;
+  monthlyIncome: number;
+  savingsTarget?: number;
+}
+
+export type FixedExpenseCategory = typeof FixedExpenseCategory[keyof typeof FixedExpenseCategory];
+
+
+export const FixedExpenseCategory = {
+  rent: 'rent',
+  utilities: 'utilities',
+  transport: 'transport',
+  food: 'food',
+  emi: 'emi',
+  insurance: 'insurance',
+  other: 'other',
+} as const;
+
+export interface FixedExpense {
+  id: number;
+  sessionId: string;
+  label: string;
+  amount: number;
+  category: FixedExpenseCategory;
+  createdAt: string;
+}
+
+export type FixedExpenseInputCategory = typeof FixedExpenseInputCategory[keyof typeof FixedExpenseInputCategory];
+
+
+export const FixedExpenseInputCategory = {
+  rent: 'rent',
+  utilities: 'utilities',
+  transport: 'transport',
+  food: 'food',
+  emi: 'emi',
+  insurance: 'insurance',
+  other: 'other',
+} as const;
+
+export interface FixedExpenseInput {
+  sessionId: string;
+  label: string;
+  amount: number;
+  category?: FixedExpenseInputCategory;
+}
+
+export interface FinancialGoal {
+  id: number;
+  sessionId: string;
+  title: string;
+  targetAmount: number;
+  savedSoFar: number;
+  /** @nullable */
+  targetDate?: string | null;
+  createdAt: string;
+}
+
+export interface FinancialGoalInput {
+  sessionId: string;
+  title: string;
+  targetAmount: number;
+  savedSoFar?: number;
+  targetDate?: string;
+}
+
+export type BudgetSummaryGoalsItem = {
+  title?: string;
+  targetAmount?: number;
+  savedSoFar?: number;
+  /** @nullable */
+  targetDate?: string | null;
+  /**
+     * null if no target date set
+     * @nullable
+     */
+  requiredMonthlySaving?: number | null;
+};
+
+export interface BudgetSummary {
+  monthlyIncome: number;
+  fixedExpensesTotal: number;
+  subscriptionsTotal: number;
+  savingsTarget: number;
+  /** income - fixed expenses - active subscriptions - savings target */
+  remainingBalance: number;
+  goals: BudgetSummaryGoalsItem[];
+}
+
 export type ListSubscriptionsParams = {
 sessionId: string;
 };
@@ -239,5 +336,21 @@ sessionId: string;
 export type ListUpcomingRenewalsParams = {
 sessionId: string;
 days?: number;
+};
+
+export type GetBudgetProfileParams = {
+sessionId: string;
+};
+
+export type ListFixedExpensesParams = {
+sessionId: string;
+};
+
+export type ListFinancialGoalsParams = {
+sessionId: string;
+};
+
+export type GetBudgetSummaryParams = {
+sessionId: string;
 };
 

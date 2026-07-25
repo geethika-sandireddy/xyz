@@ -18,6 +18,8 @@ tags:
     description: Savings tracking
   - name: renewals
     description: Renewal Watch — trial and subscription renewal tracking
+  - name: budget
+    description: Income, fixed expenses, and savings-goal budgeting
 
 paths:
   /healthz:
@@ -338,6 +340,171 @@ paths:
         "404":
           description: Renewal not found
 
+  /budget/profile:
+    get:
+      operationId: getBudgetProfile
+      tags: [budget]
+      summary: Get the user's income and savings target
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Budget profile (nullable fields default to 0 if unset)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BudgetProfile"
+    put:
+      operationId: setBudgetProfile
+      tags: [budget]
+      summary: Set/update monthly income and savings target
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BudgetProfileInput"
+      responses:
+        "200":
+          description: Saved profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BudgetProfile"
+
+  /budget/expenses:
+    get:
+      operationId: listFixedExpenses
+      tags: [budget]
+      summary: List fixed monthly expenses
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of fixed expenses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FixedExpense"
+    post:
+      operationId: createFixedExpense
+      tags: [budget]
+      summary: Add a fixed monthly expense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FixedExpenseInput"
+      responses:
+        "201":
+          description: Created expense
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FixedExpense"
+
+  /budget/expenses/{id}:
+    delete:
+      operationId: deleteFixedExpense
+      tags: [budget]
+      summary: Remove a fixed expense
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /budget/goals:
+    get:
+      operationId: listFinancialGoals
+      tags: [budget]
+      summary: List financial goals
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of goals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FinancialGoal"
+    post:
+      operationId: createFinancialGoal
+      tags: [budget]
+      summary: Add a short or long-term financial goal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FinancialGoalInput"
+      responses:
+        "201":
+          description: Created goal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinancialGoal"
+
+  /budget/goals/{id}:
+    delete:
+      operationId: deleteFinancialGoal
+      tags: [budget]
+      summary: Remove a financial goal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /budget/summary:
+    get:
+      operationId: getBudgetSummary
+      tags: [budget]
+      summary: Income minus fixed expenses minus savings target minus active subscriptions = remaining balance
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Full budget breakdown
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BudgetSummary"
+
 components:
   schemas:
     HealthStatus:
@@ -558,3 +725,125 @@ components:
           type: string
         notes:
           type: string
+
+    BudgetProfile:
+      type: object
+      required: [sessionId, monthlyIncome, savingsTarget]
+      properties:
+        sessionId:
+          type: string
+        monthlyIncome:
+          type: number
+        savingsTarget:
+          type: number
+        updatedAt:
+          type: string
+
+    BudgetProfileInput:
+      type: object
+      required: [sessionId, monthlyIncome]
+      properties:
+        sessionId:
+          type: string
+        monthlyIncome:
+          type: number
+        savingsTarget:
+          type: number
+
+    FixedExpense:
+      type: object
+      required: [id, sessionId, label, amount, category, createdAt]
+      properties:
+        id:
+          type: integer
+        sessionId:
+          type: string
+        label:
+          type: string
+        amount:
+          type: number
+        category:
+          type: string
+          enum: [rent, utilities, transport, food, emi, insurance, other]
+        createdAt:
+          type: string
+
+    FixedExpenseInput:
+      type: object
+      required: [sessionId, label, amount]
+      properties:
+        sessionId:
+          type: string
+        label:
+          type: string
+        amount:
+          type: number
+        category:
+          type: string
+          enum: [rent, utilities, transport, food, emi, insurance, other]
+
+    FinancialGoal:
+      type: object
+      required: [id, sessionId, title, targetAmount, savedSoFar, createdAt]
+      properties:
+        id:
+          type: integer
+        sessionId:
+          type: string
+        title:
+          type: string
+        targetAmount:
+          type: number
+        savedSoFar:
+          type: number
+        targetDate:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    FinancialGoalInput:
+      type: object
+      required: [sessionId, title, targetAmount]
+      properties:
+        sessionId:
+          type: string
+        title:
+          type: string
+        targetAmount:
+          type: number
+        savedSoFar:
+          type: number
+        targetDate:
+          type: string
+
+    BudgetSummary:
+      type: object
+      required: [monthlyIncome, fixedExpensesTotal, subscriptionsTotal, savingsTarget, remainingBalance, goals]
+      properties:
+        monthlyIncome:
+          type: number
+        fixedExpensesTotal:
+          type: number
+        subscriptionsTotal:
+          type: number
+        savingsTarget:
+          type: number
+        remainingBalance:
+          type: number
+          description: income - fixed expenses - active subscriptions - savings target
+        goals:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              targetAmount:
+                type: number
+              savedSoFar:
+                type: number
+              targetDate:
+                type: ["string", "null"]
+              requiredMonthlySaving:
+                type: ["number", "null"]
+                description: null if no target date set

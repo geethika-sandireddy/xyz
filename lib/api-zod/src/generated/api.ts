@@ -327,3 +327,157 @@ export const GenerateRenewalMessageResponse = zod.object({
 })
 
 
+/**
+ * @summary Get the user's income and savings target
+ */
+export const GetBudgetProfileQueryParams = zod.object({
+  "sessionId": zod.coerce.string()
+})
+
+export const GetBudgetProfileResponse = zod.object({
+  "sessionId": zod.string(),
+  "monthlyIncome": zod.number(),
+  "savingsTarget": zod.number(),
+  "updatedAt": zod.string().optional()
+})
+
+
+/**
+ * @summary Set/update monthly income and savings target
+ */
+export const SetBudgetProfileBody = zod.object({
+  "sessionId": zod.string(),
+  "monthlyIncome": zod.number(),
+  "savingsTarget": zod.number().optional()
+})
+
+export const SetBudgetProfileResponse = zod.object({
+  "sessionId": zod.string(),
+  "monthlyIncome": zod.number(),
+  "savingsTarget": zod.number(),
+  "updatedAt": zod.string().optional()
+})
+
+
+/**
+ * @summary List fixed monthly expenses
+ */
+export const ListFixedExpensesQueryParams = zod.object({
+  "sessionId": zod.coerce.string()
+})
+
+export const ListFixedExpensesResponseItem = zod.object({
+  "id": zod.number(),
+  "sessionId": zod.string(),
+  "label": zod.string(),
+  "amount": zod.number(),
+  "category": zod.enum(['rent', 'utilities', 'transport', 'food', 'emi', 'insurance', 'other']),
+  "createdAt": zod.string()
+})
+export const ListFixedExpensesResponse = zod.array(ListFixedExpensesResponseItem)
+
+
+/**
+ * @summary Add a fixed monthly expense
+ */
+export const CreateFixedExpenseBody = zod.object({
+  "sessionId": zod.string(),
+  "label": zod.string(),
+  "amount": zod.number(),
+  "category": zod.enum(['rent', 'utilities', 'transport', 'food', 'emi', 'insurance', 'other']).optional()
+})
+
+export const CreateFixedExpenseResponse = zod.object({
+  "id": zod.number(),
+  "sessionId": zod.string(),
+  "label": zod.string(),
+  "amount": zod.number(),
+  "category": zod.enum(['rent', 'utilities', 'transport', 'food', 'emi', 'insurance', 'other']),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Remove a fixed expense
+ */
+export const DeleteFixedExpenseParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteFixedExpenseResponse = zod.void()
+
+
+/**
+ * @summary List financial goals
+ */
+export const ListFinancialGoalsQueryParams = zod.object({
+  "sessionId": zod.coerce.string()
+})
+
+export const ListFinancialGoalsResponseItem = zod.object({
+  "id": zod.number(),
+  "sessionId": zod.string(),
+  "title": zod.string(),
+  "targetAmount": zod.number(),
+  "savedSoFar": zod.number(),
+  "targetDate": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+export const ListFinancialGoalsResponse = zod.array(ListFinancialGoalsResponseItem)
+
+
+/**
+ * @summary Add a short or long-term financial goal
+ */
+export const CreateFinancialGoalBody = zod.object({
+  "sessionId": zod.string(),
+  "title": zod.string(),
+  "targetAmount": zod.number(),
+  "savedSoFar": zod.number().optional(),
+  "targetDate": zod.string().optional()
+})
+
+export const CreateFinancialGoalResponse = zod.object({
+  "id": zod.number(),
+  "sessionId": zod.string(),
+  "title": zod.string(),
+  "targetAmount": zod.number(),
+  "savedSoFar": zod.number(),
+  "targetDate": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Remove a financial goal
+ */
+export const DeleteFinancialGoalParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteFinancialGoalResponse = zod.void()
+
+
+/**
+ * @summary Income minus fixed expenses minus savings target minus active subscriptions = remaining balance
+ */
+export const GetBudgetSummaryQueryParams = zod.object({
+  "sessionId": zod.coerce.string()
+})
+
+export const GetBudgetSummaryResponse = zod.object({
+  "monthlyIncome": zod.number(),
+  "fixedExpensesTotal": zod.number(),
+  "subscriptionsTotal": zod.number(),
+  "savingsTarget": zod.number(),
+  "remainingBalance": zod.number().describe('income - fixed expenses - active subscriptions - savings target'),
+  "goals": zod.array(zod.object({
+  "title": zod.string().optional(),
+  "targetAmount": zod.number().optional(),
+  "savedSoFar": zod.number().optional(),
+  "targetDate": zod.string().nullish(),
+  "requiredMonthlySaving": zod.number().nullish().describe('null if no target date set')
+}))
+})
+
+
