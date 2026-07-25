@@ -154,6 +154,22 @@ export const GenerateSubscriptionMessageResponse = zod.object({
 
 
 /**
+ * @summary Bundle Optimizer — flags categories with 2+ active subscriptions worth consolidating
+ */
+export const GetBundleSuggestionsQueryParams = zod.object({
+  "sessionId": zod.coerce.string()
+})
+
+export const GetBundleSuggestionsResponseItem = zod.object({
+  "category": zod.string(),
+  "subscriptions": zod.array(zod.string()),
+  "combinedMonthlyCost": zod.number(),
+  "message": zod.string()
+})
+export const GetBundleSuggestionsResponse = zod.array(GetBundleSuggestionsResponseItem)
+
+
+/**
  * @summary List all savings records with totals
  */
 export const ListSavingsResponse = zod.object({

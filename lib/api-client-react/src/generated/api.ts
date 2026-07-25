@@ -25,12 +25,14 @@ import type {
   BudgetProfile,
   BudgetProfileInput,
   BudgetSummary,
+  BundleSuggestion,
   FinancialGoal,
   FinancialGoalInput,
   FixedExpense,
   FixedExpenseInput,
   GetBudgetProfileParams,
   GetBudgetSummaryParams,
+  GetBundleSuggestionsParams,
   HealthStatus,
   ListFinancialGoalsParams,
   ListFixedExpensesParams,
@@ -606,6 +608,90 @@ export const useGenerateSubscriptionMessage = <TError = ErrorType<void>,
       > => {
       return useMutation(getGenerateSubscriptionMessageMutationOptions(options));
     }
+
+export const getGetBundleSuggestionsUrl = (params: GetBundleSuggestionsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/subscriptions/bundle-suggestions?${stringifiedParams}` : `/api/subscriptions/bundle-suggestions`
+}
+
+/**
+ * @summary Bundle Optimizer — flags categories with 2+ active subscriptions worth consolidating
+ */
+export const getBundleSuggestions = async (params: GetBundleSuggestionsParams, options?: RequestInit): Promise<BundleSuggestion[]> => {
+
+  return customFetch<BundleSuggestion[]>(getGetBundleSuggestionsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetBundleSuggestionsQueryKey = (params?: GetBundleSuggestionsParams,) => {
+    return [
+    `/api/subscriptions/bundle-suggestions`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetBundleSuggestionsQueryOptions = <TData = Awaited<ReturnType<typeof getBundleSuggestions>>, TError = ErrorType<unknown>>(params: GetBundleSuggestionsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBundleSuggestions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetBundleSuggestionsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBundleSuggestions>>> = ({ signal }) => getBundleSuggestions(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBundleSuggestions>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetBundleSuggestionsQueryResult = NonNullable<Awaited<ReturnType<typeof getBundleSuggestions>>>
+export type GetBundleSuggestionsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Bundle Optimizer — flags categories with 2+ active subscriptions worth consolidating
+ */
+
+export function useGetBundleSuggestions<TData = Awaited<ReturnType<typeof getBundleSuggestions>>, TError = ErrorType<unknown>>(
+ params: GetBundleSuggestionsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBundleSuggestions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetBundleSuggestionsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getListSavingsUrl = () => {
 

@@ -334,7 +334,18 @@ export interface BudgetSummary {
   goals: BudgetSummaryGoalsItem[];
 }
 
+export interface BundleSuggestion {
+  category: string;
+  subscriptions: string[];
+  combinedMonthlyCost: number;
+  message: string;
+}
+
 export type ListSubscriptionsParams = {
+sessionId: string;
+};
+
+export type GetBundleSuggestionsParams = {
 sessionId: string;
 };
 

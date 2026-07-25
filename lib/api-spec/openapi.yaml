@@ -169,6 +169,27 @@ paths:
         "404":
           description: Subscription not found
 
+  /subscriptions/bundle-suggestions:
+    get:
+      operationId: getBundleSuggestions
+      tags: [subscriptions]
+      summary: Bundle Optimizer — flags categories with 2+ active subscriptions worth consolidating
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Bundle suggestions grouped by category
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BundleSuggestion"
+
   /savings:
     get:
       operationId: listSavings
@@ -853,3 +874,18 @@ components:
               requiredMonthlySaving:
                 type: ["number", "null"]
                 description: null if no target date set
+
+    BundleSuggestion:
+      type: object
+      required: [category, subscriptions, combinedMonthlyCost, message]
+      properties:
+        category:
+          type: string
+        subscriptions:
+          type: array
+          items:
+            type: string
+        combinedMonthlyCost:
+          type: number
+        message:
+          type: string
