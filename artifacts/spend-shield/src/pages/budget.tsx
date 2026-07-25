@@ -25,7 +25,7 @@ import {
 
 function IncomeCard({ sessionId }: { sessionId: string }) {
   const queryClient = useQueryClient();
-  const { data: profile, isLoading } = useGetBudgetProfile({ sessionId }, { query: { enabled: !!sessionId } });
+  const { data: profile, isLoading } = useGetBudgetProfile({ sessionId }, { query: { enabled: !!sessionId, queryKey: getGetBudgetProfileQueryKey({ sessionId }) } });
   const [income, setIncome] = useState("");
   const [savings, setSavings] = useState("");
   const [editing, setEditing] = useState(false);
@@ -95,7 +95,7 @@ const EXPENSE_CATEGORIES = ["rent", "utilities", "transport", "food", "emi", "in
 
 function ExpensesCard({ sessionId }: { sessionId: string }) {
   const queryClient = useQueryClient();
-  const { data: expenses = [] } = useListFixedExpenses({ sessionId }, { query: { enabled: !!sessionId } });
+  const { data: expenses = [] } = useListFixedExpenses({ sessionId }, { query: { enabled: !!sessionId, queryKey: getListFixedExpensesQueryKey({ sessionId }) } });
   const [label, setLabel] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState<string>("other");
@@ -180,8 +180,8 @@ function ExpensesCard({ sessionId }: { sessionId: string }) {
 
 function GoalsCard({ sessionId }: { sessionId: string }) {
   const queryClient = useQueryClient();
-  const { data: goals = [] } = useListFinancialGoals({ sessionId }, { query: { enabled: !!sessionId } });
-  const { data: summary } = useGetBudgetSummary({ sessionId }, { query: { enabled: !!sessionId } });
+  const { data: goals = [] } = useListFinancialGoals({ sessionId }, { query: { enabled: !!sessionId, queryKey: getListFinancialGoalsQueryKey({ sessionId }) } });
+  const { data: summary } = useGetBudgetSummary({ sessionId }, { query: { enabled: !!sessionId, queryKey: getGetBudgetSummaryQueryKey({ sessionId }) } });
   const [title, setTitle] = useState("");
   const [targetAmount, setTargetAmount] = useState("");
   const [targetDate, setTargetDate] = useState("");
@@ -261,7 +261,7 @@ function GoalsCard({ sessionId }: { sessionId: string }) {
 }
 
 function RemainingBalanceCard({ sessionId }: { sessionId: string }) {
-  const { data: summary, isLoading } = useGetBudgetSummary({ sessionId }, { query: { enabled: !!sessionId } });
+  const { data: summary, isLoading } = useGetBudgetSummary({ sessionId }, { query: { enabled: !!sessionId, queryKey: getGetBudgetSummaryQueryKey({ sessionId }) } });
 
   if (isLoading || !summary) return null;
 

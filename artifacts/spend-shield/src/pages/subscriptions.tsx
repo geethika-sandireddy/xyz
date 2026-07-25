@@ -5,6 +5,7 @@ import {
   useUpdateSubscription, 
   useGenerateSubscriptionMessage,
   useGetBundleSuggestions,
+  getGetBundleSuggestionsQueryKey,
   SubscriptionCategory,
   SubscriptionStatus,
   type Subscription,
@@ -142,7 +143,7 @@ function MessageGenerator({ subscription }: { subscription: Subscription }) {
 }
 
 function BundleSuggestionsCard({ sessionId }: { sessionId: string }) {
-  const { data: suggestions = [] } = useGetBundleSuggestions({ sessionId }, { query: { enabled: !!sessionId } });
+  const { data: suggestions = [] } = useGetBundleSuggestions({ sessionId }, { query: { enabled: !!sessionId, queryKey: getGetBundleSuggestionsQueryKey({ sessionId }) } });
 
   if (suggestions.length === 0) return null;
 
@@ -173,7 +174,7 @@ export default function Subscriptions() {
   
   const { data: subscriptions = [], isLoading } = useListSubscriptions(
     { sessionId },
-    { query: { enabled: !!sessionId } }
+    { query: { enabled: !!sessionId, queryKey: getListSubscriptionsQueryKey({ sessionId }) } }
   );
 
   const updateMutation = useUpdateSubscription({

@@ -237,7 +237,7 @@ export default function Renewals() {
 
   const { data: renewals = [], isLoading } = useListRenewals(
     { sessionId },
-    { query: { enabled: !!sessionId } },
+    { query: { enabled: !!sessionId, queryKey: getListRenewalsQueryKey({ sessionId }) } },
   );
 
   const updateMutation = useUpdateRenewal({
