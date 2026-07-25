@@ -4,6 +4,7 @@ import {
   useListSubscriptions, 
   useUpdateSubscription, 
   useGenerateSubscriptionMessage,
+  useGetBundleSuggestions,
   SubscriptionCategory,
   SubscriptionStatus,
   type Subscription,
@@ -25,7 +26,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { 
   AlertTriangle, CheckCircle2, XCircle, Clock, 
   MessageSquareText, ShieldAlert, Loader2, Copy, 
-  Link
+  Link, Layers
 } from "lucide-react";
 
 const categoryColors: Record<string, string> = {
@@ -137,6 +138,32 @@ function MessageGenerator({ subscription }: { subscription: Subscription }) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function BundleSuggestionsCard({ sessionId }: { sessionId: string }) {
+  const { data: suggestions = [] } = useGetBundleSuggestions({ sessionId }, { query: { enabled: !!sessionId } });
+
+  if (suggestions.length === 0) return null;
+
+  return (
+    <div className="space-y-3">
+      {suggestions.map((s) => (
+        <Card key={s.category} className="border-amber-500/30 bg-amber-500/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2 text-amber-600 dark:text-amber-400">
+              <Layers className="w-4 h-4" /> Bundle Opportunity — {s.category}
+            </CardTitle>
+            <CardDescription>
+              {s.subscriptions.join(", ")} — combined ~{formatINR(s.combinedMonthlyCost)}/mo
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">{s.message}</p>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 }
 
@@ -301,6 +328,8 @@ export default function Subscriptions() {
           Manage detected subscriptions, draft cancellation emails, and track status.
         </p>
       </div>
+
+      <BundleSuggestionsCard sessionId={sessionId} />
 
       <div className="space-y-2">
         {renderSection("Flagged for Review", flagged)}
