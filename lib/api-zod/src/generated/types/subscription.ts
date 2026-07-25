@@ -21,5 +21,10 @@ export interface Subscription {
   flagReason?: string | null;
   /** @nullable */
   notes?: string | null;
+  /**
+     * Set automatically when a price hike is detected on update
+     * @nullable
+     */
+  previousAmount?: number | null;
   createdAt: string;
 }

@@ -10,4 +10,6 @@ import type { SubscriptionUpdateStatus } from './subscriptionUpdateStatus';
 export interface SubscriptionUpdate {
   status?: SubscriptionUpdateStatus;
   notes?: string;
+  /** Updating this triggers Price-Hike Detector if higher than the current amount */
+  amount?: number;
 }

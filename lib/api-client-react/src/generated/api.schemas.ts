@@ -63,6 +63,11 @@ export interface Subscription {
   flagReason?: string | null;
   /** @nullable */
   notes?: string | null;
+  /**
+     * Set automatically when a price hike is detected on update
+     * @nullable
+     */
+  previousAmount?: number | null;
   createdAt: string;
 }
 
@@ -86,6 +91,8 @@ export const SubscriptionUpdateStatus = {
 export interface SubscriptionUpdate {
   status?: SubscriptionUpdateStatus;
   notes?: string;
+  /** Updating this triggers Price-Hike Detector if higher than the current amount */
+  amount?: number;
 }
 
 export type NegotiationMessageMessageType = typeof NegotiationMessageMessageType[keyof typeof NegotiationMessageMessageType];

@@ -565,6 +565,9 @@ components:
           type: ["string", "null"]
         notes:
           type: ["string", "null"]
+        previousAmount:
+          type: ["number", "null"]
+          description: Set automatically when a price hike is detected on update
         createdAt:
           type: string
 
@@ -576,6 +579,9 @@ components:
           enum: [active, flagged, cancelled, reviewing]
         notes:
           type: string
+        amount:
+          type: number
+          description: Updating this triggers Price-Hike Detector if higher than the current amount
 
     NegotiationMessage:
       type: object

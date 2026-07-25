@@ -36,6 +36,7 @@ export const AnalyzeBillsResponse = zod.object({
   "status": zod.enum(['active', 'flagged', 'cancelled', 'reviewing']),
   "flagReason": zod.string().nullish(),
   "notes": zod.string().nullish(),
+  "previousAmount": zod.number().nullish().describe('Set automatically when a price hike is detected on update'),
   "createdAt": zod.string()
 })),
   "totalFound": zod.number(),
@@ -60,6 +61,7 @@ export const ListSubscriptionsResponseItem = zod.object({
   "status": zod.enum(['active', 'flagged', 'cancelled', 'reviewing']),
   "flagReason": zod.string().nullish(),
   "notes": zod.string().nullish(),
+  "previousAmount": zod.number().nullish().describe('Set automatically when a price hike is detected on update'),
   "createdAt": zod.string()
 })
 export const ListSubscriptionsResponse = zod.array(ListSubscriptionsResponseItem)
@@ -82,6 +84,7 @@ export const GetSubscriptionResponse = zod.object({
   "status": zod.enum(['active', 'flagged', 'cancelled', 'reviewing']),
   "flagReason": zod.string().nullish(),
   "notes": zod.string().nullish(),
+  "previousAmount": zod.number().nullish().describe('Set automatically when a price hike is detected on update'),
   "createdAt": zod.string()
 })
 
@@ -95,7 +98,8 @@ export const UpdateSubscriptionParams = zod.object({
 
 export const UpdateSubscriptionBody = zod.object({
   "status": zod.enum(['active', 'flagged', 'cancelled', 'reviewing']).optional(),
-  "notes": zod.string().optional()
+  "notes": zod.string().optional(),
+  "amount": zod.number().optional().describe('Updating this triggers Price-Hike Detector if higher than the current amount')
 })
 
 export const UpdateSubscriptionResponse = zod.object({
@@ -108,6 +112,7 @@ export const UpdateSubscriptionResponse = zod.object({
   "status": zod.enum(['active', 'flagged', 'cancelled', 'reviewing']),
   "flagReason": zod.string().nullish(),
   "notes": zod.string().nullish(),
+  "previousAmount": zod.number().nullish().describe('Set automatically when a price hike is detected on update'),
   "createdAt": zod.string()
 })
 
