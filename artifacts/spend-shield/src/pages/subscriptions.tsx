@@ -151,20 +151,30 @@ export default function Subscriptions() {
 
   const updateMutation = useUpdateSubscription({
     mutation: {
-      onSuccess: (data, variables) => {
-        // Optimistic cache update
-        queryClient.setQueryData(
-          getListSubscriptionsQueryKey({ sessionId }), 
-          (old: Subscription[] | undefined) => 
-            old?.map(sub => sub.id === data.id ? { ...sub, status: data.status } : sub) ?? old
-        );
-        toast.success(`Marked as ${data.status}`);
+      onSuccess: (data) => {
+        queryClient.invalidateQueries({ queryKey: getListSubscriptionsQueryKey({ sessionId }) });
+        if (data.previousAmount != null) {
+          toast.error(`Price hike detected: ${data.name} went from ${formatINR(data.previousAmount)} to ${formatINR(data.amount)}`);
+        } else if (data.status) {
+          toast.success(`Marked as ${data.status}`);
+        }
       }
     }
   });
 
   const handleStatusChange = (id: number, status: typeof SubscriptionStatus[keyof typeof SubscriptionStatus]) => {
     updateMutation.mutate({ id, data: { status } });
+  };
+
+  const handleAmountUpdate = (id: number, currentAmount: number) => {
+    const input = window.prompt("Enter the new billed amount (₹) — if it's higher, this'll be flagged as a price hike:", String(currentAmount));
+    if (!input) return;
+    const newAmount = parseFloat(input);
+    if (isNaN(newAmount) || newAmount <= 0) {
+      toast.error("Enter a valid amount");
+      return;
+    }
+    updateMutation.mutate({ id, data: { amount: newAmount } });
   };
 
   if (isLoading) {
@@ -227,9 +237,16 @@ export default function Subscriptions() {
                   )}
                 </div>
                 <CardTitle className={`text-xl ${sub.status === 'cancelled' ? 'line-through text-muted-foreground' : ''}`}>{sub.name}</CardTitle>
-                <div className="font-mono font-bold text-2xl tracking-tight text-foreground">
-                  {formatINR(sub.amount)}
-                  <span className="text-sm text-muted-foreground font-sans font-normal ml-1">/{sub.frequency === 'annual' ? 'yr' : 'mo'}</span>
+                <div className="font-mono font-bold text-2xl tracking-tight text-foreground flex items-baseline gap-2">
+                  <span>
+                    {formatINR(sub.amount)}
+                    <span className="text-sm text-muted-foreground font-sans font-normal ml-1">/{sub.frequency === 'annual' ? 'yr' : 'mo'}</span>
+                  </span>
+                  {sub.previousAmount != null && (
+                    <span className="text-sm font-sans font-normal text-muted-foreground line-through">
+                      {formatINR(sub.previousAmount)}
+                    </span>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="flex-1">
@@ -244,8 +261,16 @@ export default function Subscriptions() {
                   </p>
                 )}
               </CardContent>
-              <CardFooter className="pt-0 border-t p-4 mt-auto gap-2 bg-muted/20">
+              <CardFooter className="pt-0 border-t p-4 mt-auto gap-2 bg-muted/20 flex-wrap">
                 <MessageGenerator subscription={sub} />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 text-muted-foreground"
+                  onClick={() => handleAmountUpdate(sub.id, sub.amount)}
+                >
+                  Update Price
+                </Button>
                 <Select 
                   value={sub.status} 
                   onValueChange={(val: any) => handleStatusChange(sub.id, val)}
