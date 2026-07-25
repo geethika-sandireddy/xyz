@@ -42,7 +42,7 @@ const categoryColors: Record<string, string> = {
 
 function MessageGenerator({ subscription }: { subscription: Subscription }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [messageType, setMessageType] = useState<"cancel" | "negotiate" | "downgrade">("cancel");
+  const [messageType, setMessageType] = useState<"cancel" | "negotiate" | "downgrade" | "refund">("cancel");
   const [generatedMessage, setGeneratedMessage] = useState<string>("");
   
   const generateMutation = useGenerateSubscriptionMessage({
@@ -79,7 +79,7 @@ function MessageGenerator({ subscription }: { subscription: Subscription }) {
         <DialogHeader>
           <DialogTitle>Draft Message</DialogTitle>
           <DialogDescription>
-            Generate a personalized email to {subscription.name} to {messageType}.
+            Generate a personalized email to {subscription.name} to {messageType === "refund" ? "request a refund from" : messageType}.
           </DialogDescription>
         </DialogHeader>
         
@@ -94,6 +94,7 @@ function MessageGenerator({ subscription }: { subscription: Subscription }) {
                 <SelectItem value="cancel">Cancel Subscription</SelectItem>
                 <SelectItem value="negotiate">Negotiate Lower Rate</SelectItem>
                 <SelectItem value="downgrade">Downgrade Plan</SelectItem>
+                <SelectItem value="refund">Request Refund (already charged)</SelectItem>
               </SelectContent>
             </Select>
           </div>
