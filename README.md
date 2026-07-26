@@ -18,6 +18,7 @@
 12. **Loans** — track EMIs and see an amortization-based payoff timeline (months remaining, interest left) for each loan.
 13. **Tax Estimator** — a rough India old-vs-new-regime tax comparison based on your income and 80C investments (estimate only, not tax advice).
 14. **Calendar export** — download a `.ics` file for any tracked renewal so you get a reminder even outside the app.
+15. **Regret Score** — if you dismiss a flag and keep a subscription active more than once, you'll see a gentle nudge asking if it's really worth it.
 
 ## Tech Stack
 
@@ -127,6 +128,7 @@ SESSION_SECRET=a_random_secret_string
 - [x] Deal Watch — curated deals database matched against your active subscriptions
 - [x] Calendar export — .ics download for renewal reminders
 - [x] Loans & tax section (estimate only, not financial/tax advice)
+- [x] "Regret score" — nudge for subscriptions repeatedly kept despite being flagged
 - [ ] Family/shared plan matcher
 - [ ] Email/screenshot auto-parsing for trial signups (no manual entry)
 - [ ] v2: Local service price checker ("Is ₹800 fair for AC repair?")
