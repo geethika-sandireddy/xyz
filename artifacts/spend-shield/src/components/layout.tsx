@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Shield, LayoutDashboard, Search, List, PieChart, AlarmClock, Wallet } from "lucide-react";
+import { Shield, LayoutDashboard, Search, List, PieChart, AlarmClock, Wallet, Landmark } from "lucide-react";
 import { useSession } from "../hooks/use-session";
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -10,6 +10,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     { href: "/subscriptions", label: "Subscriptions", icon: List },
     { href: "/renewals", label: "Renewals", icon: AlarmClock },
     { href: "/budget", label: "Budget", icon: Wallet },
+    { href: "/loans", label: "Loans", icon: Landmark },
     { href: "/savings", label: "Savings", icon: PieChart },
   ];
 
