@@ -7,6 +7,7 @@ import {
   useDeleteRenewal,
   useGenerateRenewalMessage,
   getListRenewalsQueryKey,
+  getGetRenewalCalendarFileUrl,
   type Renewal,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -343,6 +344,11 @@ export default function Renewals() {
                       </CardContent>
                       <CardFooter className="pt-0 border-t p-4 mt-auto gap-2 bg-muted/20 flex-wrap">
                         <CancelMessageDialog renewal={r} />
+                        <Button variant="outline" size="sm" className="gap-2" asChild>
+                          <a href={getGetRenewalCalendarFileUrl(r.id)} download>
+                            <CalendarClock className="w-4 h-4" /> Add to Calendar
+                          </a>
+                        </Button>
                         <Button
                           variant="outline"
                           size="sm"
