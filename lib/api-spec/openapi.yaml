@@ -20,6 +20,8 @@ tags:
     description: Renewal Watch — trial and subscription renewal tracking
   - name: budget
     description: Income, fixed expenses, and savings-goal budgeting
+  - name: loans
+    description: Loan/EMI tracking and payoff estimation
 
 paths:
   /healthz:
@@ -526,6 +528,107 @@ paths:
               schema:
                 $ref: "#/components/schemas/BudgetSummary"
 
+  /loans:
+    get:
+      operationId: listLoans
+      tags: [loans]
+      summary: List all tracked loans/EMIs
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of loans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Loan"
+    post:
+      operationId: createLoan
+      tags: [loans]
+      summary: Add a loan/EMI to track
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoanInput"
+      responses:
+        "201":
+          description: Created loan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Loan"
+
+  /loans/{id}:
+    patch:
+      operationId: updateLoan
+      tags: [loans]
+      summary: Update a loan (e.g. after a payment, update outstanding balance)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoanUpdate"
+      responses:
+        "200":
+          description: Updated loan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Loan"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteLoan
+      tags: [loans]
+      summary: Stop tracking a loan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /loans/{id}/payoff:
+    get:
+      operationId: getLoanPayoff
+      tags: [loans]
+      summary: Estimate months remaining, total interest left, and whether prepayment is worth it
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Payoff estimate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoanPayoffEstimate"
+        "404":
+          description: Not found
+
 components:
   schemas:
     HealthStatus:
@@ -888,4 +991,77 @@ components:
         combinedMonthlyCost:
           type: number
         message:
+          type: string
+
+    Loan:
+      type: object
+      required: [id, sessionId, label, loanType, principal, outstandingBalance, interestRate, emiAmount, createdAt]
+      properties:
+        id:
+          type: integer
+        sessionId:
+          type: string
+        label:
+          type: string
+        loanType:
+          type: string
+          enum: [home, car, personal, education, credit_card, other]
+        principal:
+          type: number
+        outstandingBalance:
+          type: number
+        interestRate:
+          type: number
+          description: Annual interest rate as a percentage, e.g. 8.5
+        emiAmount:
+          type: number
+        startDate:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    LoanInput:
+      type: object
+      required: [sessionId, label, principal, outstandingBalance, interestRate, emiAmount]
+      properties:
+        sessionId:
+          type: string
+        label:
+          type: string
+        loanType:
+          type: string
+          enum: [home, car, personal, education, credit_card, other]
+        principal:
+          type: number
+        outstandingBalance:
+          type: number
+        interestRate:
+          type: number
+        emiAmount:
+          type: number
+        startDate:
+          type: string
+
+    LoanUpdate:
+      type: object
+      properties:
+        outstandingBalance:
+          type: number
+        emiAmount:
+          type: number
+        interestRate:
+          type: number
+
+    LoanPayoffEstimate:
+      type: object
+      required: [monthsRemaining, totalInterestRemaining, totalPayoffAmount]
+      properties:
+        monthsRemaining:
+          type: ["integer", "null"]
+          description: null if EMI is too low to ever pay off the balance
+        totalInterestRemaining:
+          type: number
+        totalPayoffAmount:
+          type: number
+        note:
           type: string

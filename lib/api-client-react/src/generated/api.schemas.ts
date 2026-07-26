@@ -341,6 +341,73 @@ export interface BundleSuggestion {
   message: string;
 }
 
+export type LoanLoanType = typeof LoanLoanType[keyof typeof LoanLoanType];
+
+
+export const LoanLoanType = {
+  home: 'home',
+  car: 'car',
+  personal: 'personal',
+  education: 'education',
+  credit_card: 'credit_card',
+  other: 'other',
+} as const;
+
+export interface Loan {
+  id: number;
+  sessionId: string;
+  label: string;
+  loanType: LoanLoanType;
+  principal: number;
+  outstandingBalance: number;
+  /** Annual interest rate as a percentage, e.g. 8.5 */
+  interestRate: number;
+  emiAmount: number;
+  /** @nullable */
+  startDate?: string | null;
+  createdAt: string;
+}
+
+export type LoanInputLoanType = typeof LoanInputLoanType[keyof typeof LoanInputLoanType];
+
+
+export const LoanInputLoanType = {
+  home: 'home',
+  car: 'car',
+  personal: 'personal',
+  education: 'education',
+  credit_card: 'credit_card',
+  other: 'other',
+} as const;
+
+export interface LoanInput {
+  sessionId: string;
+  label: string;
+  loanType?: LoanInputLoanType;
+  principal: number;
+  outstandingBalance: number;
+  interestRate: number;
+  emiAmount: number;
+  startDate?: string;
+}
+
+export interface LoanUpdate {
+  outstandingBalance?: number;
+  emiAmount?: number;
+  interestRate?: number;
+}
+
+export interface LoanPayoffEstimate {
+  /**
+     * null if EMI is too low to ever pay off the balance
+     * @nullable
+     */
+  monthsRemaining: number | null;
+  totalInterestRemaining: number;
+  totalPayoffAmount: number;
+  note?: string;
+}
+
 export type ListSubscriptionsParams = {
 sessionId: string;
 };
@@ -371,6 +438,10 @@ sessionId: string;
 };
 
 export type GetBudgetSummaryParams = {
+sessionId: string;
+};
+
+export type ListLoansParams = {
 sessionId: string;
 };
 

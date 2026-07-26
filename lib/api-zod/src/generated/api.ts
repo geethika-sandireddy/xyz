@@ -502,3 +502,105 @@ export const GetBudgetSummaryResponse = zod.object({
 })
 
 
+/**
+ * @summary List all tracked loans/EMIs
+ */
+export const ListLoansQueryParams = zod.object({
+  "sessionId": zod.coerce.string()
+})
+
+export const ListLoansResponseItem = zod.object({
+  "id": zod.number(),
+  "sessionId": zod.string(),
+  "label": zod.string(),
+  "loanType": zod.enum(['home', 'car', 'personal', 'education', 'credit_card', 'other']),
+  "principal": zod.number(),
+  "outstandingBalance": zod.number(),
+  "interestRate": zod.number().describe('Annual interest rate as a percentage, e.g. 8.5'),
+  "emiAmount": zod.number(),
+  "startDate": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+export const ListLoansResponse = zod.array(ListLoansResponseItem)
+
+
+/**
+ * @summary Add a loan/EMI to track
+ */
+export const CreateLoanBody = zod.object({
+  "sessionId": zod.string(),
+  "label": zod.string(),
+  "loanType": zod.enum(['home', 'car', 'personal', 'education', 'credit_card', 'other']).optional(),
+  "principal": zod.number(),
+  "outstandingBalance": zod.number(),
+  "interestRate": zod.number(),
+  "emiAmount": zod.number(),
+  "startDate": zod.string().optional()
+})
+
+export const CreateLoanResponse = zod.object({
+  "id": zod.number(),
+  "sessionId": zod.string(),
+  "label": zod.string(),
+  "loanType": zod.enum(['home', 'car', 'personal', 'education', 'credit_card', 'other']),
+  "principal": zod.number(),
+  "outstandingBalance": zod.number(),
+  "interestRate": zod.number().describe('Annual interest rate as a percentage, e.g. 8.5'),
+  "emiAmount": zod.number(),
+  "startDate": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Update a loan (e.g. after a payment, update outstanding balance)
+ */
+export const UpdateLoanParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateLoanBody = zod.object({
+  "outstandingBalance": zod.number().optional(),
+  "emiAmount": zod.number().optional(),
+  "interestRate": zod.number().optional()
+})
+
+export const UpdateLoanResponse = zod.object({
+  "id": zod.number(),
+  "sessionId": zod.string(),
+  "label": zod.string(),
+  "loanType": zod.enum(['home', 'car', 'personal', 'education', 'credit_card', 'other']),
+  "principal": zod.number(),
+  "outstandingBalance": zod.number(),
+  "interestRate": zod.number().describe('Annual interest rate as a percentage, e.g. 8.5'),
+  "emiAmount": zod.number(),
+  "startDate": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Stop tracking a loan
+ */
+export const DeleteLoanParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteLoanResponse = zod.void()
+
+
+/**
+ * @summary Estimate months remaining, total interest left, and whether prepayment is worth it
+ */
+export const GetLoanPayoffParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetLoanPayoffResponse = zod.object({
+  "monthsRemaining": zod.number().nullable().describe('null if EMI is too low to ever pay off the balance'),
+  "totalInterestRemaining": zod.number(),
+  "totalPayoffAmount": zod.number(),
+  "note": zod.string().optional()
+})
+
+
