@@ -6,6 +6,8 @@ import {
   useGenerateSubscriptionMessage,
   useGetBundleSuggestions,
   getGetBundleSuggestionsQueryKey,
+  useGetDealWatch,
+  getGetDealWatchQueryKey,
   SubscriptionCategory,
   SubscriptionStatus,
   type Subscription,
@@ -27,7 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { 
   AlertTriangle, CheckCircle2, XCircle, Clock, 
   MessageSquareText, ShieldAlert, Loader2, Copy, 
-  Link, Layers
+  Link, Layers, Sparkles
 } from "lucide-react";
 
 const categoryColors: Record<string, string> = {
@@ -139,6 +141,30 @@ function MessageGenerator({ subscription }: { subscription: Subscription }) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function DealWatchCard({ sessionId }: { sessionId: string }) {
+  const { data: deals = [] } = useGetDealWatch({ sessionId }, { query: { enabled: !!sessionId, queryKey: getGetDealWatchQueryKey({ sessionId }) } });
+
+  if (deals.length === 0) return null;
+
+  return (
+    <div className="space-y-3">
+      {deals.map((d, i) => (
+        <Card key={`${d.subscriptionName}-${i}`} className="border-emerald-500/30 bg-emerald-500/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+              <Sparkles className="w-4 h-4" /> Deal Watch — {d.subscriptionName}
+            </CardTitle>
+            <CardDescription>{d.title}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">{d.description}</p>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 }
 
@@ -330,6 +356,7 @@ export default function Subscriptions() {
         </p>
       </div>
 
+      <DealWatchCard sessionId={sessionId} />
       <BundleSuggestionsCard sessionId={sessionId} />
 
       <div className="space-y-2">
