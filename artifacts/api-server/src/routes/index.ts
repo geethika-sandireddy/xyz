@@ -6,6 +6,7 @@ import savingsRouter from "./savings/index.js";
 import renewalsRouter from "./renewals/index.js";
 import budgetRouter from "./budget/index.js";
 import loansRouter from "./loans/index.js";
+import taxRouter from "./tax/index.js";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(savingsRouter);
 router.use(renewalsRouter);
 router.use(budgetRouter);
 router.use(loansRouter);
+router.use(taxRouter);
 
 export default router;
