@@ -40,6 +40,7 @@ import type {
   ListFixedExpensesParams,
   ListLoansParams,
   ListRenewalsParams,
+  ListSharePlanRequestsParams,
   ListSubscriptionsParams,
   ListUpcomingRenewalsParams,
   Loan,
@@ -55,6 +56,8 @@ import type {
   SavingInput,
   SavingsList,
   SavingsSummary,
+  SharePlanRequest,
+  SharePlanRequestInput,
   Subscription,
   SubscriptionUpdate,
   TaxEstimateInput,
@@ -2677,4 +2680,230 @@ export function useGetDealWatch<TData = Awaited<ReturnType<typeof getDealWatch>>
 
 
 
+
+export const getListSharePlanRequestsUrl = (params?: ListSharePlanRequestsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/share-plans?${stringifiedParams}` : `/api/share-plans`
+}
+
+/**
+ * @summary List open requests to split a plan, optionally filtered by service
+ */
+export const listSharePlanRequests = async (params?: ListSharePlanRequestsParams, options?: RequestInit): Promise<SharePlanRequest[]> => {
+
+  return customFetch<SharePlanRequest[]>(getListSharePlanRequestsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListSharePlanRequestsQueryKey = (params?: ListSharePlanRequestsParams,) => {
+    return [
+    `/api/share-plans`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListSharePlanRequestsQueryOptions = <TData = Awaited<ReturnType<typeof listSharePlanRequests>>, TError = ErrorType<unknown>>(params?: ListSharePlanRequestsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSharePlanRequests>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListSharePlanRequestsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listSharePlanRequests>>> = ({ signal }) => listSharePlanRequests(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listSharePlanRequests>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListSharePlanRequestsQueryResult = NonNullable<Awaited<ReturnType<typeof listSharePlanRequests>>>
+export type ListSharePlanRequestsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List open requests to split a plan, optionally filtered by service
+ */
+
+export function useListSharePlanRequests<TData = Awaited<ReturnType<typeof listSharePlanRequests>>, TError = ErrorType<unknown>>(
+ params?: ListSharePlanRequestsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSharePlanRequests>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListSharePlanRequestsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateSharePlanRequestUrl = () => {
+
+
+
+
+  return `/api/share-plans`
+}
+
+/**
+ * @summary Flag that you're open to splitting a subscription
+ */
+export const createSharePlanRequest = async (sharePlanRequestInput: SharePlanRequestInput, options?: RequestInit): Promise<SharePlanRequest> => {
+
+  return customFetch<SharePlanRequest>(getCreateSharePlanRequestUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(sharePlanRequestInput)
+  }
+);}
+
+
+
+
+
+export const getCreateSharePlanRequestMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSharePlanRequest>>, TError,{data: BodyType<SharePlanRequestInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createSharePlanRequest>>, TError,{data: BodyType<SharePlanRequestInput>}, TContext> => {
+
+const mutationKey = ['createSharePlanRequest'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createSharePlanRequest>>, {data: BodyType<SharePlanRequestInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createSharePlanRequest(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateSharePlanRequestMutationResult = NonNullable<Awaited<ReturnType<typeof createSharePlanRequest>>>
+    export type CreateSharePlanRequestMutationBody = BodyType<SharePlanRequestInput>
+    export type CreateSharePlanRequestMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Flag that you're open to splitting a subscription
+ */
+export const useCreateSharePlanRequest = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSharePlanRequest>>, TError,{data: BodyType<SharePlanRequestInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createSharePlanRequest>>,
+        TError,
+        {data: BodyType<SharePlanRequestInput>},
+        TContext
+      > => {
+      return useMutation(getCreateSharePlanRequestMutationOptions(options));
+    }
+
+export const getDeleteSharePlanRequestUrl = (id: number,) => {
+
+
+
+
+  return `/api/share-plans/${id}`
+}
+
+/**
+ * @summary Withdraw a share request
+ */
+export const deleteSharePlanRequest = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteSharePlanRequestUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteSharePlanRequestMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSharePlanRequest>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteSharePlanRequest>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteSharePlanRequest'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteSharePlanRequest>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteSharePlanRequest(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteSharePlanRequestMutationResult = NonNullable<Awaited<ReturnType<typeof deleteSharePlanRequest>>>
+
+    export type DeleteSharePlanRequestMutationError = ErrorType<void>
+
+    /**
+ * @summary Withdraw a share request
+ */
+export const useDeleteSharePlanRequest = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSharePlanRequest>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteSharePlanRequest>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteSharePlanRequestMutationOptions(options));
+    }
 

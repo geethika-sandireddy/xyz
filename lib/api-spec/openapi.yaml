@@ -24,6 +24,8 @@ tags:
     description: Loan/EMI tracking and payoff estimation
   - name: tax
     description: Rough India income-tax estimate (estimate only, not tax advice)
+  - name: share-plans
+    description: Family/shared plan matching
 
 paths:
   /healthz:
@@ -692,6 +694,66 @@ paths:
                 items:
                   $ref: "#/components/schemas/DealMatch"
 
+  /share-plans:
+    get:
+      operationId: listSharePlanRequests
+      tags: [share-plans]
+      summary: List open requests to split a plan, optionally filtered by service
+      parameters:
+        - name: sessionId
+          in: query
+          schema:
+            type: string
+          description: if provided, returns only this session's own requests
+        - name: serviceName
+          in: query
+          schema:
+            type: string
+          description: if provided, returns matches for this service (excluding sessionId's own)
+      responses:
+        "200":
+          description: matching requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SharePlanRequest"
+    post:
+      operationId: createSharePlanRequest
+      tags: [share-plans]
+      summary: Flag that you're open to splitting a subscription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SharePlanRequestInput"
+      responses:
+        "201":
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SharePlanRequest"
+
+  /share-plans/{id}:
+    delete:
+      operationId: deleteSharePlanRequest
+      tags: [share-plans]
+      summary: Withdraw a share request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: deleted
+        "404":
+          description: not found
+
 components:
   schemas:
     HealthStatus:
@@ -1180,4 +1242,34 @@ components:
         title:
           type: string
         description:
+          type: string
+
+    SharePlanRequest:
+      type: object
+      required: [id, sessionId, serviceName, createdAt]
+      properties:
+        id:
+          type: integer
+        sessionId:
+          type: string
+        serviceName:
+          type: string
+        maxMembers:
+          type: ["string", "null"]
+        contactNote:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    SharePlanRequestInput:
+      type: object
+      required: [sessionId, serviceName]
+      properties:
+        sessionId:
+          type: string
+        serviceName:
+          type: string
+        maxMembers:
+          type: string
+        contactNote:
           type: string

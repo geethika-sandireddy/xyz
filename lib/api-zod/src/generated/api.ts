@@ -658,3 +658,52 @@ export const GetDealWatchResponseItem = zod.object({
 export const GetDealWatchResponse = zod.array(GetDealWatchResponseItem)
 
 
+/**
+ * @summary List open requests to split a plan, optionally filtered by service
+ */
+export const ListSharePlanRequestsQueryParams = zod.object({
+  "sessionId": zod.coerce.string().optional().describe('if provided, returns only this session\'s own requests'),
+  "serviceName": zod.coerce.string().optional().describe('if provided, returns matches for this service (excluding sessionId\'s own)')
+})
+
+export const ListSharePlanRequestsResponseItem = zod.object({
+  "id": zod.number(),
+  "sessionId": zod.string(),
+  "serviceName": zod.string(),
+  "maxMembers": zod.string().nullish(),
+  "contactNote": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+export const ListSharePlanRequestsResponse = zod.array(ListSharePlanRequestsResponseItem)
+
+
+/**
+ * @summary Flag that you're open to splitting a subscription
+ */
+export const CreateSharePlanRequestBody = zod.object({
+  "sessionId": zod.string(),
+  "serviceName": zod.string(),
+  "maxMembers": zod.string().optional(),
+  "contactNote": zod.string().optional()
+})
+
+export const CreateSharePlanRequestResponse = zod.object({
+  "id": zod.number(),
+  "sessionId": zod.string(),
+  "serviceName": zod.string(),
+  "maxMembers": zod.string().nullish(),
+  "contactNote": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Withdraw a share request
+ */
+export const DeleteSharePlanRequestParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteSharePlanRequestResponse = zod.void()
+
+

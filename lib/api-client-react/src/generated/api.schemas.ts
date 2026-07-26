@@ -453,6 +453,24 @@ export interface DealMatch {
   description: string;
 }
 
+export interface SharePlanRequest {
+  id: number;
+  sessionId: string;
+  serviceName: string;
+  /** @nullable */
+  maxMembers?: string | null;
+  /** @nullable */
+  contactNote?: string | null;
+  createdAt: string;
+}
+
+export interface SharePlanRequestInput {
+  sessionId: string;
+  serviceName: string;
+  maxMembers?: string;
+  contactNote?: string;
+}
+
 export type ListSubscriptionsParams = {
 sessionId: string;
 };
@@ -492,5 +510,16 @@ sessionId: string;
 
 export type GetDealWatchParams = {
 sessionId: string;
+};
+
+export type ListSharePlanRequestsParams = {
+/**
+ * if provided, returns only this session's own requests
+ */
+sessionId?: string;
+/**
+ * if provided, returns matches for this service (excluding sessionId's own)
+ */
+serviceName?: string;
 };
 
