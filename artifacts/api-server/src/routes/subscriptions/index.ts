@@ -171,6 +171,14 @@ router.patch("/subscriptions/:id", async (req, res): Promise<void> => {
 
   const updates: Partial<typeof subscriptionsTable.$inferInsert> = { ...body.data } as any;
 
+  // Regret Score: if the user is dismissing a flag and keeping the
+  // subscription active without cancelling, count it — repeated dismissals
+  // are a useful signal that they keep paying for something they flagged
+  // as wasteful themselves.
+  if (body.data.status === "active" && existing.status === "flagged") {
+    updates.keepCount = existing.keepCount + 1;
+  }
+
   // Price-Hike Detector: if the incoming amount is genuinely higher than
   // what's on record, remember the old price and flag it so the user
   // notices the silent increase instead of just eating the extra cost.
