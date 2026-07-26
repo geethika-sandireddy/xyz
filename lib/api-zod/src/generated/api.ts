@@ -639,3 +639,18 @@ export const GetRenewalCalendarFileParams = zod.object({
 export const GetRenewalCalendarFileResponse = zod.unknown()
 
 
+/**
+ * @summary Deal Watch — curated deals/offers matching the user's active subscriptions
+ */
+export const GetDealWatchQueryParams = zod.object({
+  "sessionId": zod.coerce.string()
+})
+
+export const GetDealWatchResponseItem = zod.object({
+  "subscriptionName": zod.string(),
+  "title": zod.string(),
+  "description": zod.string()
+})
+export const GetDealWatchResponse = zod.array(GetDealWatchResponseItem)
+
+

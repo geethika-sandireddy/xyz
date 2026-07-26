@@ -26,6 +26,7 @@ import type {
   BudgetProfileInput,
   BudgetSummary,
   BundleSuggestion,
+  DealMatch,
   FinancialGoal,
   FinancialGoalInput,
   FixedExpense,
@@ -33,6 +34,7 @@ import type {
   GetBudgetProfileParams,
   GetBudgetSummaryParams,
   GetBundleSuggestionsParams,
+  GetDealWatchParams,
   HealthStatus,
   ListFinancialGoalsParams,
   ListFixedExpensesParams,
@@ -2580,6 +2582,90 @@ export function useGetRenewalCalendarFile<TData = Awaited<ReturnType<typeof getR
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetRenewalCalendarFileQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetDealWatchUrl = (params: GetDealWatchParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/subscriptions/deal-watch?${stringifiedParams}` : `/api/subscriptions/deal-watch`
+}
+
+/**
+ * @summary Deal Watch — curated deals/offers matching the user's active subscriptions
+ */
+export const getDealWatch = async (params: GetDealWatchParams, options?: RequestInit): Promise<DealMatch[]> => {
+
+  return customFetch<DealMatch[]>(getGetDealWatchUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetDealWatchQueryKey = (params?: GetDealWatchParams,) => {
+    return [
+    `/api/subscriptions/deal-watch`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetDealWatchQueryOptions = <TData = Awaited<ReturnType<typeof getDealWatch>>, TError = ErrorType<unknown>>(params: GetDealWatchParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDealWatch>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDealWatchQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDealWatch>>> = ({ signal }) => getDealWatch(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDealWatch>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetDealWatchQueryResult = NonNullable<Awaited<ReturnType<typeof getDealWatch>>>
+export type GetDealWatchQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Deal Watch — curated deals/offers matching the user's active subscriptions
+ */
+
+export function useGetDealWatch<TData = Awaited<ReturnType<typeof getDealWatch>>, TError = ErrorType<unknown>>(
+ params: GetDealWatchParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDealWatch>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetDealWatchQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

@@ -445,6 +445,12 @@ export interface TaxEstimateResult {
   disclaimer: string;
 }
 
+export interface DealMatch {
+  subscriptionName: string;
+  title: string;
+  description: string;
+}
+
 export type ListSubscriptionsParams = {
 sessionId: string;
 };
@@ -479,6 +485,10 @@ sessionId: string;
 };
 
 export type ListLoansParams = {
+sessionId: string;
+};
+
+export type GetDealWatchParams = {
 sessionId: string;
 };
 

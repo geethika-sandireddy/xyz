@@ -671,6 +671,27 @@ paths:
         "404":
           description: Renewal not found
 
+  /subscriptions/deal-watch:
+    get:
+      operationId: getDealWatch
+      tags: [subscriptions]
+      summary: Deal Watch — curated deals/offers matching the user's active subscriptions
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Matched deals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DealMatch"
+
 components:
   schemas:
     HealthStatus:
@@ -1145,4 +1166,15 @@ components:
           type: string
           enum: [old, new]
         disclaimer:
+          type: string
+
+    DealMatch:
+      type: object
+      required: [subscriptionName, title, description]
+      properties:
+        subscriptionName:
+          type: string
+        title:
+          type: string
+        description:
           type: string
