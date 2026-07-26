@@ -12,6 +12,7 @@ export const subscriptionsTable = pgTable("subscriptions", {
   category: text("category").notNull().default("other"),    // streaming | fitness | software | food | finance | utility | gaming | education | other
   status: text("status").notNull().default("active"),       // active | flagged | cancelled | reviewing
   flagReason: text("flag_reason"),
+  keepCount: integer("keep_count").notNull().default(0), // times user dismissed a flag and kept this active — powers the Regret Score nudge
   notes: text("notes"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
