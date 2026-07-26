@@ -309,6 +309,12 @@ export default function Subscriptions() {
                     {sub.flagReason}
                   </p>
                 )}
+                {sub.keepCount >= 2 && (
+                  <p className="text-sm text-amber-600 dark:text-amber-400 bg-amber-500/10 p-3 rounded-md border border-amber-500/10 mt-2 flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+                    You've kept this despite {sub.keepCount} flags — worth asking yourself if it's really earning its cost.
+                  </p>
+                )}
                 {sub.notes && (
                   <p className="text-sm text-muted-foreground mt-3 italic text-balance">
                     "{sub.notes}"

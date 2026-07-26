@@ -729,7 +729,7 @@ components:
 
     Subscription:
       type: object
-      required: [id, sessionId, name, amount, frequency, category, status, createdAt]
+      required: [id, sessionId, name, amount, frequency, category, status, keepCount, createdAt]
       properties:
         id:
           type: integer

@@ -37,7 +37,7 @@ export const AnalyzeBillsResponse = zod.object({
   "flagReason": zod.string().nullish(),
   "notes": zod.string().nullish(),
   "previousAmount": zod.number().nullish().describe('Set automatically when a price hike is detected on update'),
-  "keepCount": zod.number().optional().describe('Times user dismissed a flag and kept this subscription active'),
+  "keepCount": zod.number().describe('Times user dismissed a flag and kept this subscription active'),
   "createdAt": zod.string()
 })),
   "totalFound": zod.number(),
@@ -63,7 +63,7 @@ export const ListSubscriptionsResponseItem = zod.object({
   "flagReason": zod.string().nullish(),
   "notes": zod.string().nullish(),
   "previousAmount": zod.number().nullish().describe('Set automatically when a price hike is detected on update'),
-  "keepCount": zod.number().optional().describe('Times user dismissed a flag and kept this subscription active'),
+  "keepCount": zod.number().describe('Times user dismissed a flag and kept this subscription active'),
   "createdAt": zod.string()
 })
 export const ListSubscriptionsResponse = zod.array(ListSubscriptionsResponseItem)
@@ -87,7 +87,7 @@ export const GetSubscriptionResponse = zod.object({
   "flagReason": zod.string().nullish(),
   "notes": zod.string().nullish(),
   "previousAmount": zod.number().nullish().describe('Set automatically when a price hike is detected on update'),
-  "keepCount": zod.number().optional().describe('Times user dismissed a flag and kept this subscription active'),
+  "keepCount": zod.number().describe('Times user dismissed a flag and kept this subscription active'),
   "createdAt": zod.string()
 })
 
@@ -116,7 +116,7 @@ export const UpdateSubscriptionResponse = zod.object({
   "flagReason": zod.string().nullish(),
   "notes": zod.string().nullish(),
   "previousAmount": zod.number().nullish().describe('Set automatically when a price hike is detected on update'),
-  "keepCount": zod.number().optional().describe('Times user dismissed a flag and kept this subscription active'),
+  "keepCount": zod.number().describe('Times user dismissed a flag and kept this subscription active'),
   "createdAt": zod.string()
 })
 

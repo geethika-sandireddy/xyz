@@ -27,6 +27,6 @@ export interface Subscription {
      */
   previousAmount?: number | null;
   /** Times user dismissed a flag and kept this subscription active */
-  keepCount?: number;
+  keepCount: number;
   createdAt: string;
 }
