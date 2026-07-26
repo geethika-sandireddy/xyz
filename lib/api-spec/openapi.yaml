@@ -755,6 +755,9 @@ components:
         previousAmount:
           type: ["number", "null"]
           description: Set automatically when a price hike is detected on update
+        keepCount:
+          type: integer
+          description: Times user dismissed a flag and kept this subscription active
         createdAt:
           type: string
 

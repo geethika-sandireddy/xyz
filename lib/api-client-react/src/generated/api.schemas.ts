@@ -68,6 +68,8 @@ export interface Subscription {
      * @nullable
      */
   previousAmount?: number | null;
+  /** Times user dismissed a flag and kept this subscription active */
+  keepCount?: number;
   createdAt: string;
 }
 
