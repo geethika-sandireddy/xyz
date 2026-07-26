@@ -14,6 +14,10 @@
 8. **Refund Hunter** — draft a refund request when you got charged after forgetting to cancel in time.
 9. **Price-Hike Detector** — update a subscription's billed amount and it's automatically flagged if the price silently went up, with the old price shown struck through.
 10. **Bundle Optimizer** — flags when you have 2+ active subscriptions in the same category (e.g. multiple streaming services) that might be cheaper as a bundle.
+11. **Deal Watch** — cross-references your active subscriptions against a curated deals database (student/family plans, bundle offers, off-peak pricing) to surface savings you might not know about.
+12. **Loans** — track EMIs and see an amortization-based payoff timeline (months remaining, interest left) for each loan.
+13. **Tax Estimator** — a rough India old-vs-new-regime tax comparison based on your income and 80C investments (estimate only, not tax advice).
+14. **Calendar export** — download a `.ics` file for any tracked renewal so you get a reminder even outside the app.
 
 ## Tech Stack
 
@@ -92,6 +96,14 @@ pnpm --filter @workspace/spend-shield run dev
 | `POST` | `/api/budget/goals` | Add a financial goal |
 | `DELETE` | `/api/budget/goals/:id` | Remove a financial goal |
 | `GET` | `/api/budget/summary` | Remaining-balance breakdown (income − expenses − subscriptions − savings) |
+| `GET` | `/api/subscriptions/deal-watch` | Deal Watch — curated deals matching active subscriptions |
+| `GET` | `/api/renewals/:id/calendar.ics` | Download a .ics calendar reminder for a renewal |
+| `GET` | `/api/loans` | List all tracked loans |
+| `POST` | `/api/loans` | Add a loan/EMI to track |
+| `PATCH` | `/api/loans/:id` | Update outstanding balance/EMI/rate |
+| `DELETE` | `/api/loans/:id` | Stop tracking a loan |
+| `GET` | `/api/loans/:id/payoff` | Amortization-based payoff estimate |
+| `POST` | `/api/tax/estimate` | Rough old-vs-new-regime tax estimate |
 
 ## Environment Variables
 
@@ -112,9 +124,9 @@ SESSION_SECRET=a_random_secret_string
 - [x] Refund hunter — draft a refund request when you got charged after forgetting to cancel
 - [x] Price-hike detector — catch silent price increases on recurring bills
 - [x] Budgeting module — income, fixed expenses, savings goals, remaining-balance estimator
-- [ ] Deal Watch — live search for promos/offers matching your subscriptions
-- [ ] Calendar integration — push renewal dates as backup alerts
-- [ ] Loans & tax section (estimate only, not financial/tax advice)
+- [x] Deal Watch — curated deals database matched against your active subscriptions
+- [x] Calendar export — .ics download for renewal reminders
+- [x] Loans & tax section (estimate only, not financial/tax advice)
 - [ ] Family/shared plan matcher
 - [ ] Email/screenshot auto-parsing for trial signups (no manual entry)
 - [ ] v2: Local service price checker ("Is ₹800 fair for AC repair?")
