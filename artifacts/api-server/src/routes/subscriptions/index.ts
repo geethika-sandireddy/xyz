@@ -10,8 +10,10 @@ import {
   GenerateSubscriptionMessageBody,
   GetSubscriptionMessageParams,
   GetBundleSuggestionsQueryParams,
+  GetDealWatchQueryParams,
 } from "@workspace/api-zod";
 import { generateMessage } from "../../lib/messageTemplates.js";
+import { findMatchingDeals } from "../../lib/dealWatch.js";
 
 // Category-specific advice for what a bundle/combo could replace these with.
 // Kept simple and India-relevant since that's who most detected services target.
@@ -90,6 +92,36 @@ router.get("/subscriptions/bundle-suggestions", async (req, res): Promise<void> 
     });
 
   res.json(suggestions);
+});
+
+// GET /subscriptions/deal-watch?sessionId=...
+// Deal Watch: cross-references active subscriptions against the curated
+// deals database to surface bundle/family-plan/off-peak savings the user
+// might not know about. Must be registered before GET /subscriptions/:id.
+router.get("/subscriptions/deal-watch", async (req, res): Promise<void> => {
+  const parsed = GetDealWatchQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "sessionId is required" });
+    return;
+  }
+
+  const subs = await db
+    .select()
+    .from(subscriptionsTable)
+    .where(eq(subscriptionsTable.sessionId, parsed.data.sessionId));
+
+  const active = subs.filter(s => s.status === "active" || s.status === "flagged");
+
+  const matches = active.flatMap(s => {
+    const deals = findMatchingDeals(s.name, null);
+    return deals.map(d => ({
+      subscriptionName: s.name,
+      title: d.title,
+      description: d.description,
+    }));
+  });
+
+  res.json(matches);
 });
 
 // GET /subscriptions/:id
