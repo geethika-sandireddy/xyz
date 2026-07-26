@@ -650,6 +650,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/TaxEstimateResult"
 
+  /renewals/{id}/calendar.ics:
+    get:
+      operationId: getRenewalCalendarFile
+      tags: [renewals]
+      summary: Download a .ics calendar file for a renewal reminder
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ICS calendar file
+          content:
+            text/calendar:
+              schema:
+                type: string
+        "404":
+          description: Renewal not found
+
 components:
   schemas:
     HealthStatus:

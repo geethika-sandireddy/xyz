@@ -2515,3 +2515,80 @@ export const useEstimateTax = <TError = ErrorType<unknown>,
       return useMutation(getEstimateTaxMutationOptions(options));
     }
 
+export const getGetRenewalCalendarFileUrl = (id: number,) => {
+
+
+
+
+  return `/api/renewals/${id}/calendar.ics`
+}
+
+/**
+ * @summary Download a .ics calendar file for a renewal reminder
+ */
+export const getRenewalCalendarFile = async (id: number, options?: RequestInit): Promise<string> => {
+
+  return customFetch<string>(getGetRenewalCalendarFileUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetRenewalCalendarFileQueryKey = (id: number,) => {
+    return [
+    `/api/renewals/${id}/calendar.ics`
+    ] as const;
+    }
+
+
+export const getGetRenewalCalendarFileQueryOptions = <TData = Awaited<ReturnType<typeof getRenewalCalendarFile>>, TError = ErrorType<void>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getRenewalCalendarFile>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetRenewalCalendarFileQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getRenewalCalendarFile>>> = ({ signal }) => getRenewalCalendarFile(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getRenewalCalendarFile>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetRenewalCalendarFileQueryResult = NonNullable<Awaited<ReturnType<typeof getRenewalCalendarFile>>>
+export type GetRenewalCalendarFileQueryError = ErrorType<void>
+
+
+/**
+ * @summary Download a .ics calendar file for a renewal reminder
+ */
+
+export function useGetRenewalCalendarFile<TData = Awaited<ReturnType<typeof getRenewalCalendarFile>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getRenewalCalendarFile>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetRenewalCalendarFileQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+

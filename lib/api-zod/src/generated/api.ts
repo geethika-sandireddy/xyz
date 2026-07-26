@@ -629,3 +629,13 @@ export const EstimateTaxResponse = zod.object({
 })
 
 
+/**
+ * @summary Download a .ics calendar file for a renewal reminder
+ */
+export const GetRenewalCalendarFileParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetRenewalCalendarFileResponse = zod.unknown()
+
+
