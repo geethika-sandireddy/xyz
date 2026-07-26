@@ -9,6 +9,7 @@ import {
   UpdateRenewalBody,
   DeleteRenewalParams,
   GenerateRenewalMessageParams,
+  GetRenewalCalendarFileParams,
 } from "@workspace/api-zod";
 import { generateMessage } from "../../lib/messageTemplates.js";
 
@@ -205,6 +206,67 @@ router.post("/renewals/:id/message", async (req, res): Promise<void> => {
     message,
     createdAt: new Date().toISOString(),
   });
+});
+
+// GET /renewals/:id/calendar.ics
+// Generates a minimal RFC 5545 .ics file with a reminder 2 days before the
+// renewal/trial-conversion date, so it works as a backup alert channel
+// even if the user never opens the app again.
+router.get("/renewals/:id/calendar.ics", async (req, res): Promise<void> => {
+  const params = GetRenewalCalendarFileParams.safeParse({ id: Number(req.params.id) });
+  if (!params.success) {
+    res.status(400).json({ error: "Invalid id" });
+    return;
+  }
+
+  const [renewal] = await db
+    .select()
+    .from(renewalsTable)
+    .where(eq(renewalsTable.id, params.data.id));
+
+  if (!renewal) {
+    res.status(404).json({ error: "Renewal not found" });
+    return;
+  }
+
+  const toIcsDate = (d: Date) =>
+    d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+
+  const renewalDate = new Date(renewal.renewalDate);
+  const reminderDate = new Date(renewalDate.getTime() - 2 * 24 * 60 * 60 * 1000);
+  const now = toIcsDate(new Date());
+  const uid = `renewal-${renewal.id}@subscription-bill-doctor`;
+
+  const summary = renewal.isTrial
+    ? `Cancel ${renewal.serviceName} before it charges you`
+    : `${renewal.serviceName} renews soon`;
+  const description = renewal.isTrial
+    ? `Your free trial for ${renewal.serviceName} converts to a paid charge of ₹${renewal.amount} on ${renewalDate.toDateString()}. Cancel now if you don't want to keep it.`
+    : `${renewal.serviceName} renews for ₹${renewal.amount} on ${renewalDate.toDateString()}.`;
+
+  const ics = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Subscription Bill Doctor//Renewal Watch//EN",
+    "CALSCALE:GREGORIAN",
+    "BEGIN:VEVENT",
+    `UID:${uid}`,
+    `DTSTAMP:${now}`,
+    `DTSTART:${toIcsDate(reminderDate)}`,
+    `DTEND:${toIcsDate(new Date(reminderDate.getTime() + 30 * 60 * 1000))}`,
+    `SUMMARY:${summary}`,
+    `DESCRIPTION:${description}`,
+    "BEGIN:VALARM",
+    "ACTION:DISPLAY",
+    "TRIGGER:-PT0M",
+    "END:VALARM",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+
+  res.setHeader("Content-Type", "text/calendar; charset=utf-8");
+  res.setHeader("Content-Disposition", `attachment; filename="${renewal.serviceName.replace(/[^a-z0-9]/gi, "-")}-renewal.ics"`);
+  res.send(ics);
 });
 
 export default router;
