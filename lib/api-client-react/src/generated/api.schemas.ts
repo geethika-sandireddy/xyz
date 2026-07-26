@@ -408,6 +408,43 @@ export interface LoanPayoffEstimate {
   note?: string;
 }
 
+export interface TaxEstimateInput {
+  annualIncome: number;
+  /** Section 80C deductions (PF, ELSS, insurance, etc.) — old regime only */
+  deductions80C?: number;
+  /** Whether to apply the standard deduction (default true) */
+  standardDeduction?: boolean;
+}
+
+export type TaxRegimeResultRegime = typeof TaxRegimeResultRegime[keyof typeof TaxRegimeResultRegime];
+
+
+export const TaxRegimeResultRegime = {
+  old: 'old',
+  new: 'new',
+} as const;
+
+export interface TaxRegimeResult {
+  regime: TaxRegimeResultRegime;
+  taxableIncome: number;
+  estimatedTax: number;
+}
+
+export type TaxEstimateResultRecommendedRegime = typeof TaxEstimateResultRecommendedRegime[keyof typeof TaxEstimateResultRecommendedRegime];
+
+
+export const TaxEstimateResultRecommendedRegime = {
+  old: 'old',
+  new: 'new',
+} as const;
+
+export interface TaxEstimateResult {
+  old: TaxRegimeResult;
+  new: TaxRegimeResult;
+  recommendedRegime: TaxEstimateResultRecommendedRegime;
+  disclaimer: string;
+}
+
 export type ListSubscriptionsParams = {
 sessionId: string;
 };

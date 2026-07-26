@@ -54,7 +54,9 @@ import type {
   SavingsList,
   SavingsSummary,
   Subscription,
-  SubscriptionUpdate
+  SubscriptionUpdate,
+  TaxEstimateInput,
+  TaxEstimateResult
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -2441,4 +2443,75 @@ export function useGetLoanPayoff<TData = Awaited<ReturnType<typeof getLoanPayoff
 
 
 
+
+export const getEstimateTaxUrl = () => {
+
+
+
+
+  return `/api/tax/estimate`
+}
+
+/**
+ * @summary Rough India income-tax estimate under old and new regimes (estimate only, not tax advice)
+ */
+export const estimateTax = async (taxEstimateInput: TaxEstimateInput, options?: RequestInit): Promise<TaxEstimateResult> => {
+
+  return customFetch<TaxEstimateResult>(getEstimateTaxUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(taxEstimateInput)
+  }
+);}
+
+
+
+
+
+export const getEstimateTaxMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof estimateTax>>, TError,{data: BodyType<TaxEstimateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof estimateTax>>, TError,{data: BodyType<TaxEstimateInput>}, TContext> => {
+
+const mutationKey = ['estimateTax'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof estimateTax>>, {data: BodyType<TaxEstimateInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  estimateTax(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type EstimateTaxMutationResult = NonNullable<Awaited<ReturnType<typeof estimateTax>>>
+    export type EstimateTaxMutationBody = BodyType<TaxEstimateInput>
+    export type EstimateTaxMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Rough India income-tax estimate under old and new regimes (estimate only, not tax advice)
+ */
+export const useEstimateTax = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof estimateTax>>, TError,{data: BodyType<TaxEstimateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof estimateTax>>,
+        TError,
+        {data: BodyType<TaxEstimateInput>},
+        TContext
+      > => {
+      return useMutation(getEstimateTaxMutationOptions(options));
+    }
 

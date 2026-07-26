@@ -22,6 +22,8 @@ tags:
     description: Income, fixed expenses, and savings-goal budgeting
   - name: loans
     description: Loan/EMI tracking and payoff estimation
+  - name: tax
+    description: Rough India income-tax estimate (estimate only, not tax advice)
 
 paths:
   /healthz:
@@ -629,6 +631,25 @@ paths:
         "404":
           description: Not found
 
+  /tax/estimate:
+    post:
+      operationId: estimateTax
+      tags: [tax]
+      summary: Rough India income-tax estimate under old and new regimes (estimate only, not tax advice)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaxEstimateInput"
+      responses:
+        "200":
+          description: Estimated tax under both regimes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaxEstimateResult"
+
 components:
   schemas:
     HealthStatus:
@@ -1064,4 +1085,43 @@ components:
         totalPayoffAmount:
           type: number
         note:
+          type: string
+
+    TaxEstimateInput:
+      type: object
+      required: [annualIncome]
+      properties:
+        annualIncome:
+          type: number
+        deductions80C:
+          type: number
+          description: Section 80C deductions (PF, ELSS, insurance, etc.) — old regime only
+        standardDeduction:
+          type: boolean
+          description: Whether to apply the standard deduction (default true)
+
+    TaxRegimeResult:
+      type: object
+      required: [regime, taxableIncome, estimatedTax]
+      properties:
+        regime:
+          type: string
+          enum: [old, new]
+        taxableIncome:
+          type: number
+        estimatedTax:
+          type: number
+
+    TaxEstimateResult:
+      type: object
+      required: [old, new, recommendedRegime, disclaimer]
+      properties:
+        old:
+          $ref: "#/components/schemas/TaxRegimeResult"
+        new:
+          $ref: "#/components/schemas/TaxRegimeResult"
+        recommendedRegime:
+          type: string
+          enum: [old, new]
+        disclaimer:
           type: string

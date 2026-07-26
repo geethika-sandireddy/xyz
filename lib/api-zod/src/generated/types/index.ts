@@ -57,3 +57,8 @@ export * from './subscriptionFrequency';
 export * from './subscriptionStatus';
 export * from './subscriptionUpdate';
 export * from './subscriptionUpdateStatus';
+export * from './taxEstimateInput';
+export * from './taxEstimateResult';
+export * from './taxEstimateResultRecommendedRegime';
+export * from './taxRegimeResult';
+export * from './taxRegimeResultRegime';
