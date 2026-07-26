@@ -13,6 +13,7 @@ import Renewals from '@/pages/renewals';
 import Budget from '@/pages/budget';
 import Loans from '@/pages/loans';
 import Tax from '@/pages/tax';
+import SharePlans from '@/pages/share-plans';
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ function Router() {
         <Route path="/budget" component={Budget} />
         <Route path="/loans" component={Loans} />
         <Route path="/tax" component={Tax} />
+        <Route path="/share-plans" component={SharePlans} />
         <Route path="/savings" component={Savings} />
         <Route component={NotFound} />
       </Switch>
