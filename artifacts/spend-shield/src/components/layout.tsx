@@ -6,6 +6,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
 
   const navItems = [
+    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/analyze", label: "Analyze", icon: Search },
     { href: "/subscriptions", label: "Subscriptions", icon: List },
     { href: "/renewals", label: "Renewals", icon: AlarmClock },

@@ -31,17 +31,13 @@ export default function Home() {
                 Analyze My Bills <ArrowRight className="w-5 h-5" />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="w-full sm:w-auto text-lg">
-              <Link href="/savings">
-                View Demo Dashboard
-              </Link>
-            </Button>
           </div>
         </div>
         
         <div className="flex-1 w-full max-w-md relative">
           <div className="absolute inset-0 bg-primary/20 blur-[100px] rounded-full"></div>
           <Card className="relative z-10 border-primary/20 shadow-2xl p-6 bg-card/50 backdrop-blur-xl">
+            <Badge variant="outline" className="mb-4 text-xs text-muted-foreground">Example — not your real data</Badge>
             <div className="space-y-6">
               <div className="flex items-center justify-between border-b pb-4">
                 <div className="flex items-center gap-3">

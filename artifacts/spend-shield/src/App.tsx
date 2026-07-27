@@ -6,6 +6,7 @@ import { Layout } from '@/components/layout';
 
 // Pages
 import Home from '@/pages/home';
+import Dashboard from '@/pages/dashboard';
 import Analyze from '@/pages/analyze';
 import Subscriptions from '@/pages/subscriptions';
 import Savings from '@/pages/savings';
@@ -31,6 +32,7 @@ function Router() {
     <Layout>
       <Switch>
         <Route path="/" component={Home} />
+        <Route path="/dashboard" component={Dashboard} />
         <Route path="/analyze" component={Analyze} />
         <Route path="/subscriptions" component={Subscriptions} />
         <Route path="/renewals" component={Renewals} />
