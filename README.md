@@ -1,11 +1,11 @@
 # SpendShield — Subscription Analyzer
 
-> Stop overpaying on subscriptions. SpendShield analyzes your bank statements, flags unused or overpriced subscriptions, and drafts ready-to-send cancellation and negotiation messages.
+> Stop overpaying on subscriptions. SpendShield reads your bank statement text, flags unused or overpriced subscriptions, and drafts ready-to-send cancellation and negotiation messages.
 
 ## What It Does
 
-1. **Upload your bank statement** — paste text or upload a PDF
-2. **AI scans for recurring charges** — Netflix, Spotify, gym, insurance, cloud storage, and more
+1. **Paste your bank statement text** — copy the relevant transactions in, no account linking required
+2. **Pattern-matches recurring charges** — Netflix, Spotify, gym, insurance, cloud storage, and more, checked against known pricing ranges
 3. **Flags wasteful subscriptions** — unused, duplicate, or overpriced ones get highlighted
 4. **Drafts negotiation messages** — one click generates a polite but firm cancellation or discount request
 5. **Tracks money saved** — log every win and watch your savings grow
@@ -19,17 +19,20 @@
 13. **Tax Estimator** — a rough India old-vs-new-regime tax comparison based on your income and 80C investments (estimate only, not tax advice).
 14. **Calendar export** — download a `.ics` file for any tracked renewal so you get a reminder even outside the app.
 15. **Regret Score** — if you dismiss a flag and keep a subscription active more than once, you'll see a gentle nudge asking if it's really worth it.
+16. **Share a Plan** — post that you're open to splitting a family/group plan, or search for someone else already looking.
+
+No sample or demo data ships with this project — the database is empty until you paste in your own statement.
 
 ## Tech Stack
 
 | Layer | Tech |
 |---|---|
-| Frontend | React 18 + Vite + TypeScript |
+| Frontend | React 19 + Vite + TypeScript |
 | UI | shadcn/ui + Tailwind CSS |
 | Backend | Express 5 (Node.js / TypeScript) |
-| AI | Google Gemini API |
+| Subscription detection | Rule-based pattern matching against known service pricing |
 | Database | PostgreSQL + Drizzle ORM |
-| File Parsing | pdf-parse + multer |
+| API contracts | OpenAPI spec → Orval-generated Zod validators + React Query hooks |
 | Data Fetching | TanStack React Query |
 
 ## Project Structure
@@ -48,26 +51,38 @@
 ## Getting Started
 
 ### Prerequisites
-- Node.js 20+
-- pnpm 9+
-- PostgreSQL database
+- Node.js 22.9+ (needed for `--env-file` support)
+- pnpm — install with `npm install -g pnpm` if you don't have it (this is a pnpm workspace monorepo; plain `npm install` will not work here)
+- A PostgreSQL database (local install, or a free hosted one like Neon/Supabase)
 
 ### Setup
 
 ```bash
-# Install dependencies
+# 1. Install dependencies
 pnpm install
 
-# Set environment variables
-cp .env.example .env
-# Fill in DATABASE_URL and GEMINI_API_KEY
+# 2. Set up the API server's environment
+cp artifacts/api-server/.env.example artifacts/api-server/.env
+# open that file and fill in your real DATABASE_URL
 
-# Push database schema
+# 3. Set up the frontend's environment (defaults are fine for local dev)
+cp artifacts/spend-shield/.env.example artifacts/spend-shield/.env
+
+# 4. Push the database schema (creates all tables — no data is inserted)
 pnpm --filter @workspace/db run push
 
-# Run development servers
-pnpm --filter @workspace/api-server run dev
-pnpm --filter @workspace/spend-shield run dev
+# 5. Run both dev servers, each in its own terminal
+pnpm --filter @workspace/api-server run dev   # http://localhost:5000
+pnpm --filter @workspace/spend-shield run dev # http://localhost:5173
+```
+
+The database starts completely empty — nothing seeds or demos itself. Paste in a real (or your own) bank statement on the Analyze page to get started.
+
+### Verifying the build works
+
+```bash
+pnpm run typecheck   # typechecks every package
+pnpm run build        # typecheck + production build of everything
 ```
 
 ## API Endpoints
@@ -105,18 +120,27 @@ pnpm --filter @workspace/spend-shield run dev
 | `DELETE` | `/api/loans/:id` | Stop tracking a loan |
 | `GET` | `/api/loans/:id/payoff` | Amortization-based payoff estimate |
 | `POST` | `/api/tax/estimate` | Rough old-vs-new-regime tax estimate |
+| `GET` | `/api/share-plans` | List your own requests, or search for others by service |
+| `POST` | `/api/share-plans` | Post that you're open to splitting a plan |
+| `DELETE` | `/api/share-plans/:id` | Withdraw a share request |
 
 ## Environment Variables
 
+`artifacts/api-server/.env`:
 ```env
 DATABASE_URL=postgresql://...
-GEMINI_API_KEY=your_gemini_api_key_here
-SESSION_SECRET=a_random_secret_string
+PORT=5000
+```
+
+`artifacts/spend-shield/.env`:
+```env
+PORT=5173
+BASE_PATH=/
 ```
 
 ## Roadmap
 
-- [x] Bank statement parsing (text + PDF)
+- [x] Bank statement parsing (pasted text)
 - [x] Subscription detection with flagging logic
 - [x] Negotiation message drafting
 - [x] Savings tracking dashboard
@@ -129,8 +153,10 @@ SESSION_SECRET=a_random_secret_string
 - [x] Calendar export — .ics download for renewal reminders
 - [x] Loans & tax section (estimate only, not financial/tax advice)
 - [x] "Regret score" — nudge for subscriptions repeatedly kept despite being flagged
-- [ ] Family/shared plan matcher
+- [x] Family/shared plan matcher
+- [ ] PDF statement upload (currently paste-only)
 - [ ] Email/screenshot auto-parsing for trial signups (no manual entry)
+- [ ] v2: AI-assisted extraction for messier/non-standard statement formats
 - [ ] v2: Local service price checker ("Is ₹800 fair for AC repair?")
 - [ ] v2: Community price database
 - [ ] v2: Email/WhatsApp message delivery

@@ -1,6 +1,6 @@
-// Rule-based subscription detector
-// Identifies recurring charges from raw bank statement text.
-// Designed to be swapped with Gemini AI analysis when API key is available.
+// Rule-based subscription detector.
+// Identifies recurring charges from raw bank statement text by matching
+// known service names and typical price ranges — no AI/LLM call involved.
 
 export interface DetectedSubscription {
   name: string;

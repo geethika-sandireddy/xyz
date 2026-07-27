@@ -1,6 +1,6 @@
 // Ready-to-send negotiation and cancellation message templates.
-// These are carefully crafted for Indian service providers and sound natural.
-// Designed to be replaced by Gemini-generated messages when API key is available.
+// These are template-based (not AI-generated) — written to sound natural
+// for Indian service providers, with placeholders filled in per subscription.
 
 export interface MessageContext {
   serviceName: string;

@@ -28,9 +28,7 @@ router.post("/bills/analyze", async (req, res): Promise<void> => {
   }
 
   // Delete old subscriptions for this session before inserting new ones
-  await db.delete(subscriptionsTable)
-    // @ts-ignore - drizzle eq import
-    .where((await import("drizzle-orm")).eq(subscriptionsTable.sessionId, sessionId));
+  await db.delete(subscriptionsTable).where(eq(subscriptionsTable.sessionId, sessionId));
 
   const inserted = await db.insert(subscriptionsTable)
     .values(
