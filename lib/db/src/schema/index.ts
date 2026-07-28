@@ -6,3 +6,4 @@ export * from "./budget";
 export * from "./loans";
 export * from "./share-plans";
 export * from "./community-deals";
+export * from "./users";
