@@ -244,7 +244,7 @@ router.post("/subscriptions/:id/message", async (req, res): Promise<void> => {
 
   const [saved] = await db
     .insert(negotiationMessagesTable)
-    .values({ subscriptionId: sub.id, messageType: body.data.messageType, message })
+    .values({ subscriptionId: sub.id, messageType: body.data.messageType, message, serviceName: sub.name })
     .returning();
 
   res.json({ ...saved, createdAt: saved.createdAt.toISOString() });
