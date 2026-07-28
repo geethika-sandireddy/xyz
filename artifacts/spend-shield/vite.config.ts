@@ -33,6 +33,10 @@ if (!basePath) {
   );
 }
 
+// where the api-server is running. defaults to the port from its own
+// .env.example so this just works if you followed the readme setup.
+const apiTarget = process.env.API_PROXY_TARGET || 'http://localhost:5000';
+
 export default defineConfig({
   base: basePath,
   plugins: [react(), tailwindcss()],
@@ -54,6 +58,12 @@ export default defineConfig({
     allowedHosts: true,
     fs: {
       strict: true,
+    },
+    proxy: {
+      '/api': {
+        target: apiTarget,
+        changeOrigin: true,
+      },
     },
   },
   preview: {
