@@ -1,18 +1,10 @@
-import { useState, useEffect } from "react";
+import { useAuth } from "./auth-context";
 
+// used to just be a random id stored in the browser. now it's your real
+// account id once you're logged in, empty string if you're not.
+// kept the same return type (just a string) so every page that already
+// calls useSession() didn't need to change.
 export function useSession() {
-  const [sessionId, setSessionId] = useState<string>("");
-
-  useEffect(() => {
-    const stored = localStorage.getItem("spendshield_session");
-    if (stored) {
-      setSessionId(stored);
-    } else {
-      const newSession = crypto.randomUUID();
-      localStorage.setItem("spendshield_session", newSession);
-      setSessionId(newSession);
-    }
-  }, []);
-
-  return sessionId;
+  const { user } = useAuth();
+  return user?.id ?? "";
 }

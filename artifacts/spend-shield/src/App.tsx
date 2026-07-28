@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { Route, Switch, Router as WouterRouter } from 'wouter';
 import { ThemeProvider } from '@/components/theme-provider';
+import { AuthProvider } from '@/hooks/auth-context';
 import { Layout } from '@/components/layout';
 
 // Pages
@@ -15,6 +16,8 @@ import Budget from '@/pages/budget';
 import Loans from '@/pages/loans';
 import Tax from '@/pages/tax';
 import SharePlans from '@/pages/share-plans';
+import LoginPage from '@/pages/login';
+import SignupPage from '@/pages/signup';
 
 const queryClient = new QueryClient();
 
@@ -40,6 +43,8 @@ function Router() {
         <Route path="/loans" component={Loans} />
         <Route path="/tax" component={Tax} />
         <Route path="/share-plans" component={SharePlans} />
+        <Route path="/login" component={LoginPage} />
+        <Route path="/signup" component={SignupPage} />
         <Route path="/savings" component={Savings} />
         <Route component={NotFound} />
       </Switch>
@@ -51,9 +56,11 @@ function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="spendshield-theme">
       <QueryClientProvider client={queryClient}>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-          <Router />
-        </WouterRouter>
+        <AuthProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+            <Router />
+          </WouterRouter>
+        </AuthProvider>
         <Toaster theme="dark" position="bottom-right" />
       </QueryClientProvider>
     </ThemeProvider>
