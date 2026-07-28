@@ -3,7 +3,7 @@ import { randomUUID } from "crypto";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { eq } from "drizzle-orm";
-import { db, usersTable } from "@workspace/db";
+import { db, usersTable, subscriptionsTable, renewalsTable, budgetProfileTable, fixedExpensesTable, financialGoalsTable, loansTable, savingsTable, negotiationMessagesTable, sharePlanRequestsTable } from "@workspace/db";
 import { SignupBody, LoginBody } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -25,6 +25,17 @@ function setCookie(res: any, token: string) {
     sameSite: "lax",
     maxAge: 30 * 24 * 60 * 60 * 1000,
   });
+}
+
+function getUserIdFromCookie(req: any): string | null {
+  const token = req.cookies?.[COOKIE_NAME];
+  if (!token) return null;
+  try {
+    const payload = jwt.verify(token, SECRET as string) as { userId: string };
+    return payload.userId;
+  } catch {
+    return null;
+  }
 }
 
 router.post("/auth/signup", async (req, res): Promise<void> => {
@@ -99,6 +110,37 @@ router.get("/auth/me", async (req, res): Promise<void> => {
   } catch {
     res.json({ user: null });
   }
+});
+
+// deletes the account and everything tied to it. no undo.
+router.delete("/auth/me", async (req, res): Promise<void> => {
+  const userId = getUserIdFromCookie(req);
+  if (!userId) {
+    res.status(401).json({ error: "not logged in" });
+    return;
+  }
+
+  // sessionId doubles as the user id everywhere else, so this is just
+  // deleting every row in every table that matches it
+  // messages table only has subscriptionId, not sessionId, so grab the
+  // subscription ids first and delete messages tied to those
+  const mySubs = await db.select().from(subscriptionsTable).where(eq(subscriptionsTable.sessionId, userId));
+  for (const sub of mySubs) {
+    await db.delete(negotiationMessagesTable).where(eq(negotiationMessagesTable.subscriptionId, sub.id));
+  }
+
+  await db.delete(subscriptionsTable).where(eq(subscriptionsTable.sessionId, userId));
+  await db.delete(renewalsTable).where(eq(renewalsTable.sessionId, userId));
+  await db.delete(budgetProfileTable).where(eq(budgetProfileTable.sessionId, userId));
+  await db.delete(fixedExpensesTable).where(eq(fixedExpensesTable.sessionId, userId));
+  await db.delete(financialGoalsTable).where(eq(financialGoalsTable.sessionId, userId));
+  await db.delete(loansTable).where(eq(loansTable.sessionId, userId));
+  await db.delete(savingsTable).where(eq(savingsTable.sessionId, userId));
+  await db.delete(sharePlanRequestsTable).where(eq(sharePlanRequestsTable.sessionId, userId));
+  await db.delete(usersTable).where(eq(usersTable.id, userId));
+
+  res.clearCookie(COOKIE_NAME);
+  res.json({ ok: true });
 });
 
 export default router;
