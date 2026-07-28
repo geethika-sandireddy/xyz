@@ -9,6 +9,7 @@ import {
   getGetBundleSuggestionsQueryKey,
   useGetDealWatch,
   useAddSubscription,
+  usePostDeal,
   getGetDealWatchQueryKey,
   SubscriptionCategory,
   SubscriptionStatus,
@@ -204,6 +205,60 @@ function DealWatchCard({ sessionId }: { sessionId: string }) {
         </Card>
       ))}
     </div>
+  );
+}
+
+function ShareDealForm() {
+  const [open, setOpen] = useState(false);
+  const [service, setService] = useState("");
+  const [title, setTitle] = useState("");
+  const [desc, setDesc] = useState("");
+
+  const postMutation = usePostDeal({
+    mutation: {
+      onSuccess: () => {
+        toast.success("thanks, this'll show up for others who have this service too");
+        setOpen(false);
+        setService("");
+        setTitle("");
+        setDesc("");
+      },
+    },
+  });
+
+  const submit = () => {
+    if (!service.trim() || !title.trim() || !desc.trim()) {
+      toast.error("fill in all three fields");
+      return;
+    }
+    postMutation.mutate({ data: { serviceName: service.trim(), title: title.trim(), description: desc.trim() } });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="sm" className="text-muted-foreground gap-1.5">
+          <Sparkles className="w-3.5 h-3.5" /> Know a deal? Share it
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Share a deal</DialogTitle>
+          <DialogDescription>Found a student discount, a bundle offer, a trick that got you money off? Post it here.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3 py-2">
+          <Input placeholder="service name, like Spotify" value={service} onChange={(e) => setService(e.target.value)} />
+          <Input placeholder="short title, like 'student plan available'" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <Textarea placeholder="how does it work" value={desc} onChange={(e) => setDesc(e.target.value)} className="min-h-[80px]" />
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={postMutation.isPending}>
+            {postMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Post"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -493,6 +548,7 @@ export default function Subscriptions() {
       </div>
 
       <DealWatchCard sessionId={sessionId} />
+      <ShareDealForm />
       <BundleSuggestionsCard sessionId={sessionId} />
 
       <div className="space-y-2">
