@@ -6,6 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type ListRenewalsParams = {
-sessionId: string;
-};
+export interface ServiceStat {
+  serviceName: string;
+  totalReported: number;
+  workedCount: number;
+  /** workedCount / totalReported, 0 to 1 */
+  winRate: number;
+}

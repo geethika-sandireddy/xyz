@@ -14,6 +14,8 @@ tags:
     description: Bank statement analysis
   - name: subscriptions
     description: Subscription management
+  - name: messages
+    description: Sent negotiation messages and outcome tracking
   - name: savings
     description: Savings tracking
   - name: renewals
@@ -754,6 +756,48 @@ paths:
         "404":
           description: not found
 
+  /messages/{id}/outcome:
+    patch:
+      operationId: setMessageOutcome
+      tags: [messages]
+      summary: Report what happened after a message was sent
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageOutcomeInput"
+      responses:
+        "200":
+          description: updated message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NegotiationMessage"
+        "404":
+          description: not found
+
+  /messages/stats:
+    get:
+      operationId: getMessageStats
+      tags: [messages]
+      summary: Win rate per service, based on outcomes people have reported
+      responses:
+        "200":
+          description: stats grouped by service
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ServiceStat"
+
 components:
   schemas:
     HealthStatus:
@@ -848,6 +892,11 @@ components:
           enum: [cancel, negotiate, downgrade, refund]
         message:
           type: string
+        serviceName:
+          type: ["string", "null"]
+        outcome:
+          type: ["string", "null"]
+          enum: [worked, partial, ignored, declined, null]
         createdAt:
           type: string
 
@@ -1273,3 +1322,25 @@ components:
           type: string
         contactNote:
           type: string
+
+    ServiceStat:
+      type: object
+      required: [serviceName, totalReported, workedCount, winRate]
+      properties:
+        serviceName:
+          type: string
+        totalReported:
+          type: integer
+        workedCount:
+          type: integer
+        winRate:
+          type: number
+          description: workedCount / totalReported, 0 to 1
+
+    MessageOutcomeInput:
+      type: object
+      required: [outcome]
+      properties:
+        outcome:
+          type: string
+          enum: [worked, partial, ignored, declined]

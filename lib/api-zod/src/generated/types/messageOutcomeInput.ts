@@ -5,7 +5,8 @@
  * SpendShield API — subscription analyzer and savings tracker
  * OpenAPI spec version: 0.1.0
  */
+import type { MessageOutcomeInputOutcome } from './messageOutcomeInputOutcome';
 
-export type ListRenewalsParams = {
-sessionId: string;
-};
+export interface MessageOutcomeInput {
+  outcome: MessageOutcomeInputOutcome;
+}
