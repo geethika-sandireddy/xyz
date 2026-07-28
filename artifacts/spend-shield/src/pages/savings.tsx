@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSession } from "@/hooks/use-session";
 import { 
   useGetSavingsSummary, 
   useListSavings, 
@@ -22,6 +23,7 @@ import {
 } from "recharts";
 
 export default function Savings() {
+  const sessionId = useSession();
   const queryClient = useQueryClient();
   const [isRecording, setIsRecording] = useState(false);
   const [formData, setFormData] = useState({
@@ -30,8 +32,8 @@ export default function Savings() {
     note: ""
   });
 
-  const { data: summary, isLoading: isSummaryLoading } = useGetSavingsSummary();
-  const { data: listData, isLoading: isListLoading } = useListSavings();
+  const { data: summary, isLoading: isSummaryLoading } = useGetSavingsSummary({ sessionId }, { query: { enabled: !!sessionId, queryKey: getGetSavingsSummaryQueryKey({ sessionId }) } });
+  const { data: listData, isLoading: isListLoading } = useListSavings({ sessionId }, { query: { enabled: !!sessionId, queryKey: getListSavingsQueryKey({ sessionId }) } });
 
   const recordMutation = useRecordSaving({
     mutation: {
@@ -39,8 +41,8 @@ export default function Savings() {
         toast.success("Savings recorded successfully!");
         setFormData({ subscriptionName: "", amountSaved: "", note: "" });
         setIsRecording(false);
-        queryClient.invalidateQueries({ queryKey: getGetSavingsSummaryQueryKey() });
-        queryClient.invalidateQueries({ queryKey: getListSavingsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetSavingsSummaryQueryKey({ sessionId }) });
+        queryClient.invalidateQueries({ queryKey: getListSavingsQueryKey({ sessionId }) });
       },
       onError: (err) => {
         toast.error("Failed to record savings.");
@@ -58,6 +60,7 @@ export default function Savings() {
 
     recordMutation.mutate({
       data: {
+        sessionId,
         subscriptionName: formData.subscriptionName,
         amountSaved: Number(formData.amountSaved),
         note: formData.note || undefined

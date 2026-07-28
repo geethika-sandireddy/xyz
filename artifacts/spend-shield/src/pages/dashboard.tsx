@@ -4,7 +4,7 @@ import {
   useGetBudgetSummary, getGetBudgetSummaryQueryKey,
   useListSubscriptions, getListSubscriptionsQueryKey,
   useListUpcomingRenewals, getListUpcomingRenewalsQueryKey,
-  useGetSavingsSummary,
+  useGetSavingsSummary, getGetSavingsSummaryQueryKey,
   useGetMessageStats,
 } from "@workspace/api-client-react";
 import { formatINR } from "@/lib/utils";
@@ -25,7 +25,7 @@ export default function Dashboard() {
   const budget = useGetBudgetSummary({ sessionId }, { query: { enabled: !!sessionId, queryKey: getGetBudgetSummaryQueryKey({ sessionId }) } });
   const subscriptions = useListSubscriptions({ sessionId }, { query: { enabled: !!sessionId, queryKey: getListSubscriptionsQueryKey({ sessionId }) } });
   const upcoming = useListUpcomingRenewals({ sessionId, days: 7 }, { query: { enabled: !!sessionId, queryKey: getListUpcomingRenewalsQueryKey({ sessionId, days: 7 }) } });
-  const savings = useGetSavingsSummary();
+  const savings = useGetSavingsSummary({ sessionId }, { query: { enabled: !!sessionId, queryKey: getGetSavingsSummaryQueryKey({ sessionId }) } });
   const stats = useGetMessageStats();
 
   const isLoading = budget.isLoading || subscriptions.isLoading || upcoming.isLoading || savings.isLoading;
