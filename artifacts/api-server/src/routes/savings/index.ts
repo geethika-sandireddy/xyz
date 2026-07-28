@@ -1,15 +1,22 @@
 import { Router, type IRouter } from "express";
-import { desc, sql } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { db, savingsTable } from "@workspace/db";
-import { RecordSavingBody } from "@workspace/api-zod";
+import { RecordSavingBody, ListSavingsQueryParams, GetSavingsSummaryQueryParams } from "@workspace/api-zod";
 
 const router: IRouter = Router();
 
-// GET /savings
-router.get("/savings", async (_req, res): Promise<void> => {
+// GET /savings?sessionId=...
+router.get("/savings", async (req, res): Promise<void> => {
+  const parsed = ListSavingsQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "sessionId is required" });
+    return;
+  }
+
   const rows = await db
     .select()
     .from(savingsTable)
+    .where(eq(savingsTable.sessionId, parsed.data.sessionId))
     .orderBy(desc(savingsTable.savedAt));
 
   const totalSaved = rows.reduce((sum, r) => sum + parseFloat(r.amountSaved), 0);
@@ -36,6 +43,7 @@ router.post("/savings", async (req, res): Promise<void> => {
   const [saved] = await db
     .insert(savingsTable)
     .values({
+      sessionId: parsed.data.sessionId,
       subscriptionId: parsed.data.subscriptionId ?? null,
       subscriptionName: parsed.data.subscriptionName,
       amountSaved: String(parsed.data.amountSaved),
@@ -50,9 +58,19 @@ router.post("/savings", async (req, res): Promise<void> => {
   });
 });
 
-// GET /savings/summary
-router.get("/savings/summary", async (_req, res): Promise<void> => {
-  const rows = await db.select().from(savingsTable).orderBy(desc(savingsTable.savedAt));
+// GET /savings/summary?sessionId=...
+router.get("/savings/summary", async (req, res): Promise<void> => {
+  const parsed = GetSavingsSummaryQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: "sessionId is required" });
+    return;
+  }
+
+  const rows = await db
+    .select()
+    .from(savingsTable)
+    .where(eq(savingsTable.sessionId, parsed.data.sessionId))
+    .orderBy(desc(savingsTable.savedAt));
 
   const now = new Date();
   const thisMonth = rows.filter(r => {

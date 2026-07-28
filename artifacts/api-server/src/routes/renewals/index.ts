@@ -131,6 +131,7 @@ router.patch("/renewals/:id", async (req, res): Promise<void> => {
   // subscription cancellations.
   if (body.data.status === "cancelled") {
     await db.insert(savingsTable).values({
+      sessionId: updated.sessionId,
       subscriptionId: null,
       subscriptionName: updated.serviceName,
       amountSaved: updated.amount,
