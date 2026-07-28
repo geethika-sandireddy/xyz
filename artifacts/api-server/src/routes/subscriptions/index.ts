@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
-import { db, subscriptionsTable, negotiationMessagesTable } from "@workspace/db";
+import { db, subscriptionsTable, negotiationMessagesTable, communityDealsTable } from "@workspace/db";
 import {
   ListSubscriptionsQueryParams,
   GetSubscriptionParams,
@@ -145,6 +145,20 @@ router.get("/subscriptions/deal-watch", async (req, res): Promise<void> => {
       description: d.description,
     }));
   });
+
+  // also pull in anything people have posted for these services
+  const communityRows = await db.select().from(communityDealsTable);
+  for (const s of active) {
+    for (const c of communityRows) {
+      if (c.serviceName.toLowerCase() === s.name.toLowerCase()) {
+        matches.push({
+          subscriptionName: s.name,
+          title: c.title + " (from another user)",
+          description: c.description,
+        });
+      }
+    }
+  }
 
   res.json(matches);
 });
