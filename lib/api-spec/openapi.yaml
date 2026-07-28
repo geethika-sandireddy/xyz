@@ -16,6 +16,8 @@ tags:
     description: Subscription management
   - name: messages
     description: Sent negotiation messages and outcome tracking
+  - name: deals
+    description: Community-submitted deal tips
   - name: savings
     description: Savings tracking
   - name: renewals
@@ -815,6 +817,64 @@ paths:
                 items:
                   $ref: "#/components/schemas/ServiceStat"
 
+  /deals:
+    get:
+      operationId: listDeals
+      tags: [deals]
+      summary: List community deal tips, optionally filtered by service
+      parameters:
+        - name: serviceName
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: deal tips
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CommunityDeal"
+    post:
+      operationId: postDeal
+      tags: [deals]
+      summary: Share a deal tip for a service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommunityDealInput"
+      responses:
+        "201":
+          description: created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommunityDeal"
+
+  /deals/{id}/upvote:
+    post:
+      operationId: upvoteDeal
+      tags: [deals]
+      summary: Upvote a deal tip
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: updated deal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommunityDeal"
+        "404":
+          description: not found
+
 components:
   schemas:
     HealthStatus:
@@ -1378,3 +1438,31 @@ components:
         category:
           type: string
           enum: [streaming, fitness, software, food, finance, utility, gaming, education, other]
+
+    CommunityDeal:
+      type: object
+      required: [id, serviceName, title, description, upvotes, createdAt]
+      properties:
+        id:
+          type: integer
+        serviceName:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        upvotes:
+          type: integer
+        createdAt:
+          type: string
+
+    CommunityDealInput:
+      type: object
+      required: [serviceName, title, description]
+      properties:
+        serviceName:
+          type: string
+        title:
+          type: string
+        description:
+          type: string

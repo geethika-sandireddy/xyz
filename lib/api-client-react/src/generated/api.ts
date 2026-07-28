@@ -27,6 +27,8 @@ import type {
   BudgetProfileInput,
   BudgetSummary,
   BundleSuggestion,
+  CommunityDeal,
+  CommunityDealInput,
   DealMatch,
   FinancialGoal,
   FinancialGoalInput,
@@ -37,6 +39,7 @@ import type {
   GetBundleSuggestionsParams,
   GetDealWatchParams,
   HealthStatus,
+  ListDealsParams,
   ListFinancialGoalsParams,
   ListFixedExpensesParams,
   ListLoansParams,
@@ -3129,4 +3132,230 @@ export function useGetMessageStats<TData = Awaited<ReturnType<typeof getMessageS
 
 
 
+
+export const getListDealsUrl = (params?: ListDealsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/deals?${stringifiedParams}` : `/api/deals`
+}
+
+/**
+ * @summary List community deal tips, optionally filtered by service
+ */
+export const listDeals = async (params?: ListDealsParams, options?: RequestInit): Promise<CommunityDeal[]> => {
+
+  return customFetch<CommunityDeal[]>(getListDealsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListDealsQueryKey = (params?: ListDealsParams,) => {
+    return [
+    `/api/deals`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListDealsQueryOptions = <TData = Awaited<ReturnType<typeof listDeals>>, TError = ErrorType<unknown>>(params?: ListDealsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listDeals>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListDealsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listDeals>>> = ({ signal }) => listDeals(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listDeals>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListDealsQueryResult = NonNullable<Awaited<ReturnType<typeof listDeals>>>
+export type ListDealsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List community deal tips, optionally filtered by service
+ */
+
+export function useListDeals<TData = Awaited<ReturnType<typeof listDeals>>, TError = ErrorType<unknown>>(
+ params?: ListDealsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listDeals>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListDealsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getPostDealUrl = () => {
+
+
+
+
+  return `/api/deals`
+}
+
+/**
+ * @summary Share a deal tip for a service
+ */
+export const postDeal = async (communityDealInput: CommunityDealInput, options?: RequestInit): Promise<CommunityDeal> => {
+
+  return customFetch<CommunityDeal>(getPostDealUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(communityDealInput)
+  }
+);}
+
+
+
+
+
+export const getPostDealMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDeal>>, TError,{data: BodyType<CommunityDealInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof postDeal>>, TError,{data: BodyType<CommunityDealInput>}, TContext> => {
+
+const mutationKey = ['postDeal'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postDeal>>, {data: BodyType<CommunityDealInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postDeal(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostDealMutationResult = NonNullable<Awaited<ReturnType<typeof postDeal>>>
+    export type PostDealMutationBody = BodyType<CommunityDealInput>
+    export type PostDealMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Share a deal tip for a service
+ */
+export const usePostDeal = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postDeal>>, TError,{data: BodyType<CommunityDealInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof postDeal>>,
+        TError,
+        {data: BodyType<CommunityDealInput>},
+        TContext
+      > => {
+      return useMutation(getPostDealMutationOptions(options));
+    }
+
+export const getUpvoteDealUrl = (id: number,) => {
+
+
+
+
+  return `/api/deals/${id}/upvote`
+}
+
+/**
+ * @summary Upvote a deal tip
+ */
+export const upvoteDeal = async (id: number, options?: RequestInit): Promise<CommunityDeal> => {
+
+  return customFetch<CommunityDeal>(getUpvoteDealUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getUpvoteDealMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upvoteDeal>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof upvoteDeal>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['upvoteDeal'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof upvoteDeal>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  upvoteDeal(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpvoteDealMutationResult = NonNullable<Awaited<ReturnType<typeof upvoteDeal>>>
+
+    export type UpvoteDealMutationError = ErrorType<void>
+
+    /**
+ * @summary Upvote a deal tip
+ */
+export const useUpvoteDeal = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upvoteDeal>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof upvoteDeal>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getUpvoteDealMutationOptions(options));
+    }
 

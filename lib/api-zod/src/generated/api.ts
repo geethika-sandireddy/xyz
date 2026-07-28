@@ -774,3 +774,57 @@ export const GetMessageStatsResponseItem = zod.object({
 export const GetMessageStatsResponse = zod.array(GetMessageStatsResponseItem)
 
 
+/**
+ * @summary List community deal tips, optionally filtered by service
+ */
+export const ListDealsQueryParams = zod.object({
+  "serviceName": zod.coerce.string().optional()
+})
+
+export const ListDealsResponseItem = zod.object({
+  "id": zod.number(),
+  "serviceName": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "upvotes": zod.number(),
+  "createdAt": zod.string()
+})
+export const ListDealsResponse = zod.array(ListDealsResponseItem)
+
+
+/**
+ * @summary Share a deal tip for a service
+ */
+export const PostDealBody = zod.object({
+  "serviceName": zod.string(),
+  "title": zod.string(),
+  "description": zod.string()
+})
+
+export const PostDealResponse = zod.object({
+  "id": zod.number(),
+  "serviceName": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "upvotes": zod.number(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Upvote a deal tip
+ */
+export const UpvoteDealParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpvoteDealResponse = zod.object({
+  "id": zod.number(),
+  "serviceName": zod.string(),
+  "title": zod.string(),
+  "description": zod.string(),
+  "upvotes": zod.number(),
+  "createdAt": zod.string()
+})
+
+

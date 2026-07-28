@@ -543,6 +543,21 @@ export interface AddSubscriptionInput {
   category: AddSubscriptionInputCategory;
 }
 
+export interface CommunityDeal {
+  id: number;
+  serviceName: string;
+  title: string;
+  description: string;
+  upvotes: number;
+  createdAt: string;
+}
+
+export interface CommunityDealInput {
+  serviceName: string;
+  title: string;
+  description: string;
+}
+
 export type ListSubscriptionsParams = {
 sessionId: string;
 };
@@ -592,6 +607,10 @@ sessionId?: string;
 /**
  * if provided, returns matches for this service (excluding sessionId's own)
  */
+serviceName?: string;
+};
+
+export type ListDealsParams = {
 serviceName?: string;
 };
 
