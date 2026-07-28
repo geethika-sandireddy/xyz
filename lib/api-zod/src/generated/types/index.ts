@@ -6,6 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './addSubscriptionInput';
+export * from './addSubscriptionInputCategory';
+export * from './addSubscriptionInputFrequency';
 export * from './billAnalysisInput';
 export * from './billAnalysisResult';
 export * from './budgetProfile';

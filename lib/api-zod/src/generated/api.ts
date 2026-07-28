@@ -70,6 +70,33 @@ export const ListSubscriptionsResponse = zod.array(ListSubscriptionsResponseItem
 
 
 /**
+ * @summary Manually add a subscription the detector missed
+ */
+export const AddSubscriptionBody = zod.object({
+  "sessionId": zod.string(),
+  "name": zod.string(),
+  "amount": zod.number(),
+  "frequency": zod.enum(['monthly', 'annual', 'weekly', 'unknown']),
+  "category": zod.enum(['streaming', 'fitness', 'software', 'food', 'finance', 'utility', 'gaming', 'education', 'other'])
+})
+
+export const AddSubscriptionResponse = zod.object({
+  "id": zod.number(),
+  "sessionId": zod.string(),
+  "name": zod.string(),
+  "amount": zod.number(),
+  "frequency": zod.enum(['monthly', 'annual', 'weekly', 'unknown']),
+  "category": zod.enum(['streaming', 'fitness', 'software', 'food', 'finance', 'utility', 'gaming', 'education', 'other']),
+  "status": zod.enum(['active', 'flagged', 'cancelled', 'reviewing']),
+  "flagReason": zod.string().nullish(),
+  "notes": zod.string().nullish(),
+  "previousAmount": zod.number().nullish().describe('Set automatically when a price hike is detected on update'),
+  "keepCount": zod.number().describe('Times user dismissed a flag and kept this subscription active'),
+  "createdAt": zod.string()
+})
+
+
+/**
  * @summary Get a single subscription
  */
 export const GetSubscriptionParams = zod.object({

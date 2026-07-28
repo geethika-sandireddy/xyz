@@ -510,6 +510,39 @@ export interface MessageOutcomeInput {
   outcome: MessageOutcomeInputOutcome;
 }
 
+export type AddSubscriptionInputFrequency = typeof AddSubscriptionInputFrequency[keyof typeof AddSubscriptionInputFrequency];
+
+
+export const AddSubscriptionInputFrequency = {
+  monthly: 'monthly',
+  annual: 'annual',
+  weekly: 'weekly',
+  unknown: 'unknown',
+} as const;
+
+export type AddSubscriptionInputCategory = typeof AddSubscriptionInputCategory[keyof typeof AddSubscriptionInputCategory];
+
+
+export const AddSubscriptionInputCategory = {
+  streaming: 'streaming',
+  fitness: 'fitness',
+  software: 'software',
+  food: 'food',
+  finance: 'finance',
+  utility: 'utility',
+  gaming: 'gaming',
+  education: 'education',
+  other: 'other',
+} as const;
+
+export interface AddSubscriptionInput {
+  sessionId: string;
+  name: string;
+  amount: number;
+  frequency: AddSubscriptionInputFrequency;
+  category: AddSubscriptionInputCategory;
+}
+
 export type ListSubscriptionsParams = {
 sessionId: string;
 };

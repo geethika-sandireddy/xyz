@@ -20,6 +20,7 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AddSubscriptionInput,
   BillAnalysisInput,
   BillAnalysisResult,
   BudgetProfile,
@@ -324,6 +325,77 @@ export function useListSubscriptions<TData = Awaited<ReturnType<typeof listSubsc
 
 
 
+
+export const getAddSubscriptionUrl = () => {
+
+
+
+
+  return `/api/subscriptions`
+}
+
+/**
+ * @summary Manually add a subscription the detector missed
+ */
+export const addSubscription = async (addSubscriptionInput: AddSubscriptionInput, options?: RequestInit): Promise<Subscription> => {
+
+  return customFetch<Subscription>(getAddSubscriptionUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(addSubscriptionInput)
+  }
+);}
+
+
+
+
+
+export const getAddSubscriptionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addSubscription>>, TError,{data: BodyType<AddSubscriptionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof addSubscription>>, TError,{data: BodyType<AddSubscriptionInput>}, TContext> => {
+
+const mutationKey = ['addSubscription'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof addSubscription>>, {data: BodyType<AddSubscriptionInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  addSubscription(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AddSubscriptionMutationResult = NonNullable<Awaited<ReturnType<typeof addSubscription>>>
+    export type AddSubscriptionMutationBody = BodyType<AddSubscriptionInput>
+    export type AddSubscriptionMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Manually add a subscription the detector missed
+ */
+export const useAddSubscription = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof addSubscription>>, TError,{data: BodyType<AddSubscriptionInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof addSubscription>>,
+        TError,
+        {data: BodyType<AddSubscriptionInput>},
+        TContext
+      > => {
+      return useMutation(getAddSubscriptionMutationOptions(options));
+    }
 
 export const getGetSubscriptionUrl = (id: number,) => {
 

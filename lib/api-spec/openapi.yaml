@@ -84,6 +84,23 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Subscription"
+    post:
+      operationId: addSubscription
+      tags: [subscriptions]
+      summary: Manually add a subscription the detector missed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddSubscriptionInput"
+      responses:
+        "201":
+          description: created subscription
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
 
   /subscriptions/{id}:
     get:
@@ -1344,3 +1361,20 @@ components:
         outcome:
           type: string
           enum: [worked, partial, ignored, declined]
+
+    AddSubscriptionInput:
+      type: object
+      required: [sessionId, name, amount, frequency, category]
+      properties:
+        sessionId:
+          type: string
+        name:
+          type: string
+        amount:
+          type: number
+        frequency:
+          type: string
+          enum: [monthly, annual, weekly, unknown]
+        category:
+          type: string
+          enum: [streaming, fitness, software, food, finance, utility, gaming, education, other]
