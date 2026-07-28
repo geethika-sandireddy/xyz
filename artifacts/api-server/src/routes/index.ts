@@ -10,6 +10,7 @@ import taxRouter from "./tax/index.js";
 import sharePlansRouter from "./share-plans/index.js";
 import messagesRouter from "./messages/index.js";
 import dealsRouter from "./deals/index.js";
+import authRouter from "./auth/index.js";
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use(taxRouter);
 router.use(sharePlansRouter);
 router.use(messagesRouter);
 router.use(dealsRouter);
+router.use(authRouter);
 
 export default router;
