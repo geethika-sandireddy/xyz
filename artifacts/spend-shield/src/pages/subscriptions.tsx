@@ -8,6 +8,7 @@ import {
   useGetBundleSuggestions,
   getGetBundleSuggestionsQueryKey,
   useGetDealWatch,
+  useAddSubscription,
   getGetDealWatchQueryKey,
   SubscriptionCategory,
   SubscriptionStatus,
@@ -22,6 +23,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { 
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter 
 } from "@/components/ui/dialog";
@@ -30,7 +32,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { 
   AlertTriangle, CheckCircle2, XCircle, Clock, 
   MessageSquareText, ShieldAlert, Loader2, Copy, 
-  Link, Layers, Sparkles
+  Link, Layers, Sparkles, Plus
 } from "lucide-react";
 
 const categoryColors: Record<string, string> = {
@@ -231,6 +233,94 @@ function BundleSuggestionsCard({ sessionId }: { sessionId: string }) {
   );
 }
 
+function AddSubForm({ sessionId }: { sessionId: string }) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [amount, setAmount] = useState("");
+  const [freq, setFreq] = useState("monthly");
+  const [cat, setCat] = useState("other");
+  const queryClient = useQueryClient();
+
+  const addMutation = useAddSubscription({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListSubscriptionsQueryKey({ sessionId }) });
+        toast.success("added");
+        setOpen(false);
+        setName("");
+        setAmount("");
+      },
+    },
+  });
+
+  const submit = () => {
+    if (!name.trim() || !amount) {
+      toast.error("need a name and amount");
+      return;
+    }
+    addMutation.mutate({
+      data: {
+        sessionId,
+        name: name.trim(),
+        amount: parseFloat(amount),
+        frequency: freq as any,
+        category: cat as any,
+      },
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="gap-2">
+          <Plus className="w-4 h-4" /> Add one manually
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Add a subscription</DialogTitle>
+          <DialogDescription>Didn't get caught by the auto-detector? Add it yourself.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3 py-2">
+          <Input placeholder="name, like Netflix" value={name} onChange={(e) => setName(e.target.value)} />
+          <div className="grid grid-cols-2 gap-2">
+            <Input type="number" placeholder="amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
+            <Select value={freq} onValueChange={setFreq}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="monthly">monthly</SelectItem>
+                <SelectItem value="annual">annual</SelectItem>
+                <SelectItem value="weekly">weekly</SelectItem>
+                <SelectItem value="unknown">not sure</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Select value={cat} onValueChange={setCat}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="streaming">streaming</SelectItem>
+              <SelectItem value="fitness">fitness</SelectItem>
+              <SelectItem value="software">software</SelectItem>
+              <SelectItem value="food">food</SelectItem>
+              <SelectItem value="finance">finance</SelectItem>
+              <SelectItem value="utility">utility</SelectItem>
+              <SelectItem value="gaming">gaming</SelectItem>
+              <SelectItem value="education">education</SelectItem>
+              <SelectItem value="other">other</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button onClick={submit} disabled={addMutation.isPending}>
+            {addMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Add"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function Subscriptions() {
   const sessionId = useSession();
   const queryClient = useQueryClient();
@@ -392,11 +482,14 @@ export default function Subscriptions() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold font-display tracking-tight">Your Subscriptions</h1>
-        <p className="text-muted-foreground text-lg">
-          Manage detected subscriptions, draft cancellation emails, and track status.
-        </p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold font-display tracking-tight">Your Subscriptions</h1>
+          <p className="text-muted-foreground text-lg">
+            Manage detected subscriptions, draft cancellation emails, and track status.
+          </p>
+        </div>
+        <AddSubForm sessionId={sessionId} />
       </div>
 
       <DealWatchCard sessionId={sessionId} />
