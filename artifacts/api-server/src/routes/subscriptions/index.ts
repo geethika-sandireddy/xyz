@@ -11,6 +11,7 @@ import {
   GetSubscriptionMessageParams,
   GetBundleSuggestionsQueryParams,
   GetDealWatchQueryParams,
+  AddSubscriptionBody,
 } from "@workspace/api-zod";
 import { generateMessage } from "../../lib/messageTemplates.js";
 import { findMatchingDeals } from "../../lib/dealWatch.js";
@@ -45,6 +46,30 @@ router.get("/subscriptions", async (req, res): Promise<void> => {
     previousAmount: s.previousAmount ? parseFloat(s.previousAmount) : null,
     createdAt: s.createdAt.toISOString(),
   })));
+});
+
+// POST /subscriptions - for when the detector missed something and you add it yourself
+router.post("/subscriptions", async (req, res): Promise<void> => {
+  const body = AddSubscriptionBody.safeParse(req.body);
+  if (!body.success) {
+    res.status(400).json({ error: body.error.message });
+    return;
+  }
+
+  const created = await db
+    .insert(subscriptionsTable)
+    .values({
+      sessionId: body.data.sessionId,
+      name: body.data.name,
+      amount: String(body.data.amount),
+      frequency: body.data.frequency,
+      category: body.data.category,
+      status: "active",
+    })
+    .returning();
+
+  const sub = created[0];
+  res.status(201).json({ ...sub, amount: parseFloat(sub.amount), previousAmount: null, createdAt: sub.createdAt.toISOString() });
 });
 
 // GET /subscriptions/bundle-suggestions?sessionId=...
