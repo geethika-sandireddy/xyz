@@ -1,6 +1,6 @@
-# SpendShield — Subscription Analyzer
+# SpendShield — Personal Finance Copilot
 
-> Stop overpaying on subscriptions. SpendShield reads your bank statement text, flags unused or overpriced subscriptions, and drafts ready-to-send cancellation and negotiation messages.
+> Most budgeting tools assume you already have a budget. SpendShield starts from zero — income, fixed costs, subscriptions, loans — and gives you one real number: what's actually left to spend. Subscription cancelling and negotiation drafting are part of that picture, not the whole product.
 
 ## What It Does
 
