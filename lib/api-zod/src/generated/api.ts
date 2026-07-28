@@ -884,3 +884,9 @@ export const GetMeResponse = zod.object({
 })
 
 
+/**
+ * @summary Permanently delete your account and everything tied to it
+ */
+export const DeleteMeResponse = zod.unknown()
+
+

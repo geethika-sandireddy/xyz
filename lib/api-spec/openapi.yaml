@@ -957,6 +957,15 @@ paths:
                     oneOf:
                       - $ref: "#/components/schemas/AuthUser"
                       - type: "null"
+    delete:
+      operationId: deleteMe
+      tags: [auth]
+      summary: Permanently delete your account and everything tied to it
+      responses:
+        "200":
+          description: deleted
+        "401":
+          description: not logged in
 
 components:
   schemas:
