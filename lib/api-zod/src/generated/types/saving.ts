@@ -8,6 +8,7 @@
 
 export interface Saving {
   id: number;
+  sessionId: string;
   /** @nullable */
   subscriptionId?: number | null;
   subscriptionName: string;

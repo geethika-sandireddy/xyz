@@ -207,9 +207,14 @@ export const GetBundleSuggestionsResponse = zod.array(GetBundleSuggestionsRespon
 /**
  * @summary List all savings records with totals
  */
+export const ListSavingsQueryParams = zod.object({
+  "sessionId": zod.coerce.string()
+})
+
 export const ListSavingsResponse = zod.object({
   "savings": zod.array(zod.object({
   "id": zod.number(),
+  "sessionId": zod.string(),
   "subscriptionId": zod.number().nullish(),
   "subscriptionName": zod.string(),
   "amountSaved": zod.number(),
@@ -225,6 +230,7 @@ export const ListSavingsResponse = zod.object({
  * @summary Record money actually saved
  */
 export const RecordSavingBody = zod.object({
+  "sessionId": zod.string(),
   "subscriptionId": zod.number().optional(),
   "subscriptionName": zod.string(),
   "amountSaved": zod.number(),
@@ -233,6 +239,7 @@ export const RecordSavingBody = zod.object({
 
 export const RecordSavingResponse = zod.object({
   "id": zod.number(),
+  "sessionId": zod.string(),
   "subscriptionId": zod.number().nullish(),
   "subscriptionName": zod.string(),
   "amountSaved": zod.number(),
@@ -244,6 +251,10 @@ export const RecordSavingResponse = zod.object({
 /**
  * @summary Get aggregated savings summary — total saved, count, monthly breakdown
  */
+export const GetSavingsSummaryQueryParams = zod.object({
+  "sessionId": zod.coerce.string()
+})
+
 export const GetSavingsSummaryResponse = zod.object({
   "totalSaved": zod.number(),
   "totalCount": zod.number(),

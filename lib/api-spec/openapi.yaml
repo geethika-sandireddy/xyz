@@ -224,6 +224,12 @@ paths:
       operationId: listSavings
       tags: [savings]
       summary: List all savings records with totals
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
         "200":
           description: Savings list with totals
@@ -254,6 +260,12 @@ paths:
       operationId: getSavingsSummary
       tags: [savings]
       summary: Get aggregated savings summary — total saved, count, monthly breakdown
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
         "200":
           description: Savings summary
@@ -1058,10 +1070,12 @@ components:
 
     Saving:
       type: object
-      required: [id, subscriptionName, amountSaved, note, savedAt]
+      required: [id, sessionId, subscriptionName, amountSaved, note, savedAt]
       properties:
         id:
           type: integer
+        sessionId:
+          type: string
         subscriptionId:
           type: ["integer", "null"]
         subscriptionName:
@@ -1075,8 +1089,10 @@ components:
 
     SavingInput:
       type: object
-      required: [subscriptionName, amountSaved]
+      required: [sessionId, subscriptionName, amountSaved]
       properties:
+        sessionId:
+          type: string
         subscriptionId:
           type: integer
         subscriptionName:

@@ -6,10 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface SavingInput {
-  sessionId: string;
-  subscriptionId?: number;
-  subscriptionName: string;
-  amountSaved: number;
-  note?: string;
-}
+export type ListSavingsParams = {
+sessionId: string;
+};

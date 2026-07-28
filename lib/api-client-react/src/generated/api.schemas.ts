@@ -148,6 +148,7 @@ export interface MessageRequest {
 
 export interface Saving {
   id: number;
+  sessionId: string;
   /** @nullable */
   subscriptionId?: number | null;
   subscriptionName: string;
@@ -158,6 +159,7 @@ export interface Saving {
 }
 
 export interface SavingInput {
+  sessionId: string;
   subscriptionId?: number;
   subscriptionName: string;
   amountSaved: number;
@@ -573,6 +575,14 @@ sessionId: string;
 };
 
 export type GetBundleSuggestionsParams = {
+sessionId: string;
+};
+
+export type ListSavingsParams = {
+sessionId: string;
+};
+
+export type GetSavingsSummaryParams = {
 sessionId: string;
 };
 

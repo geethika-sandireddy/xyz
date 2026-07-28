@@ -41,12 +41,14 @@ import type {
   GetBundleSuggestionsParams,
   GetDealWatchParams,
   GetMe200,
+  GetSavingsSummaryParams,
   HealthStatus,
   ListDealsParams,
   ListFinancialGoalsParams,
   ListFixedExpensesParams,
   ListLoansParams,
   ListRenewalsParams,
+  ListSavingsParams,
   ListSharePlanRequestsParams,
   ListSubscriptionsParams,
   ListUpcomingRenewalsParams,
@@ -785,20 +787,27 @@ export function useGetBundleSuggestions<TData = Awaited<ReturnType<typeof getBun
 
 
 
-export const getListSavingsUrl = () => {
+export const getListSavingsUrl = (params: ListSavingsParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/savings`
+  return stringifiedParams.length > 0 ? `/api/savings?${stringifiedParams}` : `/api/savings`
 }
 
 /**
  * @summary List all savings records with totals
  */
-export const listSavings = async ( options?: RequestInit): Promise<SavingsList> => {
+export const listSavings = async (params: ListSavingsParams, options?: RequestInit): Promise<SavingsList> => {
 
-  return customFetch<SavingsList>(getListSavingsUrl(),
+  return customFetch<SavingsList>(getListSavingsUrl(params),
   {
     ...options,
     method: 'GET'
@@ -811,23 +820,23 @@ export const listSavings = async ( options?: RequestInit): Promise<SavingsList> 
 
 
 
-export const getListSavingsQueryKey = () => {
+export const getListSavingsQueryKey = (params?: ListSavingsParams,) => {
     return [
-    `/api/savings`
+    `/api/savings`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getListSavingsQueryOptions = <TData = Awaited<ReturnType<typeof listSavings>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSavings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getListSavingsQueryOptions = <TData = Awaited<ReturnType<typeof listSavings>>, TError = ErrorType<unknown>>(params: ListSavingsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSavings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getListSavingsQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getListSavingsQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof listSavings>>> = ({ signal }) => listSavings({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listSavings>>> = ({ signal }) => listSavings(params, { signal, ...requestOptions });
 
 
 
@@ -845,11 +854,11 @@ export type ListSavingsQueryError = ErrorType<unknown>
  */
 
 export function useListSavings<TData = Awaited<ReturnType<typeof listSavings>>, TError = ErrorType<unknown>>(
-  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSavings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ params: ListSavingsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listSavings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getListSavingsQueryOptions(options)
+  const queryOptions = getListSavingsQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -933,20 +942,27 @@ export const useRecordSaving = <TError = ErrorType<unknown>,
       return useMutation(getRecordSavingMutationOptions(options));
     }
 
-export const getGetSavingsSummaryUrl = () => {
+export const getGetSavingsSummaryUrl = (params: GetSavingsSummaryParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/savings/summary`
+  return stringifiedParams.length > 0 ? `/api/savings/summary?${stringifiedParams}` : `/api/savings/summary`
 }
 
 /**
  * @summary Get aggregated savings summary — total saved, count, monthly breakdown
  */
-export const getSavingsSummary = async ( options?: RequestInit): Promise<SavingsSummary> => {
+export const getSavingsSummary = async (params: GetSavingsSummaryParams, options?: RequestInit): Promise<SavingsSummary> => {
 
-  return customFetch<SavingsSummary>(getGetSavingsSummaryUrl(),
+  return customFetch<SavingsSummary>(getGetSavingsSummaryUrl(params),
   {
     ...options,
     method: 'GET'
@@ -959,23 +975,23 @@ export const getSavingsSummary = async ( options?: RequestInit): Promise<Savings
 
 
 
-export const getGetSavingsSummaryQueryKey = () => {
+export const getGetSavingsSummaryQueryKey = (params?: GetSavingsSummaryParams,) => {
     return [
-    `/api/savings/summary`
+    `/api/savings/summary`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetSavingsSummaryQueryOptions = <TData = Awaited<ReturnType<typeof getSavingsSummary>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSavingsSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetSavingsSummaryQueryOptions = <TData = Awaited<ReturnType<typeof getSavingsSummary>>, TError = ErrorType<unknown>>(params: GetSavingsSummaryParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSavingsSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetSavingsSummaryQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetSavingsSummaryQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSavingsSummary>>> = ({ signal }) => getSavingsSummary({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSavingsSummary>>> = ({ signal }) => getSavingsSummary(params, { signal, ...requestOptions });
 
 
 
@@ -993,11 +1009,11 @@ export type GetSavingsSummaryQueryError = ErrorType<unknown>
  */
 
 export function useGetSavingsSummary<TData = Awaited<ReturnType<typeof getSavingsSummary>>, TError = ErrorType<unknown>>(
-  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSavingsSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ params: GetSavingsSummaryParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSavingsSummary>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetSavingsSummaryQueryOptions(options)
+  const queryOptions = getGetSavingsSummaryQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
