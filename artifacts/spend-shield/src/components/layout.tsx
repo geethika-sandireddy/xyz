@@ -1,9 +1,11 @@
 import { Link, useLocation } from "wouter";
-import { Shield, LayoutDashboard, Search, List, PieChart, AlarmClock, Wallet, Landmark, Receipt, Users } from "lucide-react";
-import { useSession } from "../hooks/use-session";
+import { Shield, LayoutDashboard, Search, List, PieChart, AlarmClock, Wallet, Landmark, Receipt, Users, LogOut } from "lucide-react";
+import { useAuth } from "../hooks/auth-context";
+import { Button } from "./ui/button";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
+  const { user, logout } = useAuth();
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -47,6 +49,23 @@ export function Layout({ children }: { children: React.ReactNode }) {
               );
             })}
           </nav>
+          <div className="flex items-center gap-3">
+            {user ? (
+              <>
+                <span className="hidden md:inline text-sm text-muted-foreground">{user.email}</span>
+                <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => logout()}>
+                  <LogOut className="w-4 h-4" /> <span className="hidden sm:inline">Log Out</span>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-primary">Log In</Link>
+                <Button asChild size="sm">
+                  <Link href="/signup">Sign Up</Link>
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </header>
       <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-8">
@@ -54,7 +73,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </main>
       <footer className="border-t py-8 mt-auto">
         <div className="container mx-auto max-w-6xl px-4 text-center text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} SpendShield. Protecting your wealth.
+          &copy; {new Date().getFullYear()} SpendShield. Know where your money goes.
         </div>
       </footer>
     </div>
