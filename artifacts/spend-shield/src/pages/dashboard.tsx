@@ -5,13 +5,14 @@ import {
   useListSubscriptions, getListSubscriptionsQueryKey,
   useListUpcomingRenewals, getListUpcomingRenewalsQueryKey,
   useGetSavingsSummary,
+  useGetMessageStats,
 } from "@workspace/api-client-react";
 import { formatINR } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Wallet, List, AlarmClock, PiggyBank, ArrowRight, Loader2, Bell, TrendingUp,
+  Wallet, List, AlarmClock, PiggyBank, ArrowRight, Loader2, Bell, TrendingUp, MessageSquareText,
 } from "lucide-react";
 
 function daysUntil(dateStr: string) {
@@ -25,6 +26,7 @@ export default function Dashboard() {
   const subscriptions = useListSubscriptions({ sessionId }, { query: { enabled: !!sessionId, queryKey: getListSubscriptionsQueryKey({ sessionId }) } });
   const upcoming = useListUpcomingRenewals({ sessionId, days: 7 }, { query: { enabled: !!sessionId, queryKey: getListUpcomingRenewalsQueryKey({ sessionId, days: 7 }) } });
   const savings = useGetSavingsSummary();
+  const stats = useGetMessageStats();
 
   const isLoading = budget.isLoading || subscriptions.isLoading || upcoming.isLoading || savings.isLoading;
 
@@ -122,6 +124,31 @@ export default function Dashboard() {
             <Link href="/renewals" className="text-sm text-primary hover:underline flex items-center gap-1 pt-1">
               View all renewals <ArrowRight className="w-3 h-3" />
             </Link>
+          </CardContent>
+        </Card>
+      )}
+
+      {stats.data && stats.data.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <MessageSquareText className="w-4 h-4" /> What actually works
+            </CardTitle>
+            <CardDescription>Based on outcomes people reported after sending a message.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {stats.data
+              .filter((s) => s.totalReported > 0)
+              .sort((a, b) => b.winRate - a.winRate)
+              .slice(0, 5)
+              .map((s) => (
+                <div key={s.serviceName} className="flex items-center justify-between text-sm">
+                  <span>{s.serviceName}</span>
+                  <span className="text-muted-foreground">
+                    {Math.round(s.winRate * 100)}% worked ({s.totalReported} report{s.totalReported === 1 ? "" : "s"})
+                  </span>
+                </div>
+              ))}
           </CardContent>
         </Card>
       )}
