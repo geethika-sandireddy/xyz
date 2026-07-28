@@ -7,6 +7,8 @@ export const negotiationMessagesTable = pgTable("negotiation_messages", {
   subscriptionId: integer("subscription_id").notNull(),
   messageType: text("message_type").notNull(), // cancel | negotiate | downgrade
   message: text("message").notNull(),
+  serviceName: text("service_name"), // copy of the subscription name at send time, for stats later
+  outcome: text("outcome"), // worked | partial | ignored | declined | null if not reported yet
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
