@@ -18,6 +18,8 @@ tags:
     description: Sent negotiation messages and outcome tracking
   - name: deals
     description: Community-submitted deal tips
+  - name: auth
+    description: Signup, login, current user
   - name: savings
     description: Savings tracking
   - name: renewals
@@ -875,6 +877,75 @@ paths:
         "404":
           description: not found
 
+  /auth/signup:
+    post:
+      operationId: signup
+      tags: [auth]
+      summary: Create a new account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthInput"
+      responses:
+        "201":
+          description: account created, cookie set
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "409":
+          description: email already used
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Log in to an existing account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthInput"
+      responses:
+        "200":
+          description: logged in, cookie set
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: wrong email or password
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Clear the login cookie
+      responses:
+        "200":
+          description: logged out
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get the current logged in user, if any
+      responses:
+        "200":
+          description: current user or null
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    oneOf:
+                      - $ref: "#/components/schemas/AuthUser"
+                      - type: "null"
+
 components:
   schemas:
     HealthStatus:
@@ -1465,4 +1536,22 @@ components:
         title:
           type: string
         description:
+          type: string
+
+    AuthInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    AuthUser:
+      type: object
+      required: [id, email]
+      properties:
+        id:
+          type: string
+        email:
           type: string

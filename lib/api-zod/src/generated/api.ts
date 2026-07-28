@@ -828,3 +828,48 @@ export const UpvoteDealResponse = zod.object({
 })
 
 
+/**
+ * @summary Create a new account
+ */
+export const SignupBody = zod.object({
+  "email": zod.string(),
+  "password": zod.string()
+})
+
+export const SignupResponse = zod.object({
+  "id": zod.string(),
+  "email": zod.string()
+})
+
+
+/**
+ * @summary Log in to an existing account
+ */
+export const LoginBody = zod.object({
+  "email": zod.string(),
+  "password": zod.string()
+})
+
+export const LoginResponse = zod.object({
+  "id": zod.string(),
+  "email": zod.string()
+})
+
+
+/**
+ * @summary Clear the login cookie
+ */
+export const LogoutResponse = zod.unknown()
+
+
+/**
+ * @summary Get the current logged in user, if any
+ */
+export const GetMeResponse = zod.object({
+  "user": zod.union([zod.object({
+  "id": zod.string(),
+  "email": zod.string()
+}),zod.null()]).optional()
+})
+
+

@@ -9,6 +9,8 @@
 export * from './addSubscriptionInput';
 export * from './addSubscriptionInputCategory';
 export * from './addSubscriptionInputFrequency';
+export * from './authInput';
+export * from './authUser';
 export * from './billAnalysisInput';
 export * from './billAnalysisResult';
 export * from './budgetProfile';
@@ -29,6 +31,7 @@ export * from './getBudgetProfileParams';
 export * from './getBudgetSummaryParams';
 export * from './getBundleSuggestionsParams';
 export * from './getDealWatchParams';
+export * from './getMe200';
 export * from './healthStatus';
 export * from './listDealsParams';
 export * from './listFinancialGoalsParams';

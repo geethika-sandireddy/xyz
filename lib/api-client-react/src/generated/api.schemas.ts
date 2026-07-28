@@ -558,6 +558,16 @@ export interface CommunityDealInput {
   description: string;
 }
 
+export interface AuthInput {
+  email: string;
+  password: string;
+}
+
+export interface AuthUser {
+  id: string;
+  email: string;
+}
+
 export type ListSubscriptionsParams = {
 sessionId: string;
 };
@@ -612,5 +622,9 @@ serviceName?: string;
 
 export type ListDealsParams = {
 serviceName?: string;
+};
+
+export type GetMe200 = {
+  user?: AuthUser | null;
 };
 
