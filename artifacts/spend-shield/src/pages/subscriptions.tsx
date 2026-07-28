@@ -4,6 +4,7 @@ import {
   useListSubscriptions, 
   useUpdateSubscription, 
   useGenerateSubscriptionMessage,
+  useSetMessageOutcome,
   useGetBundleSuggestions,
   getGetBundleSuggestionsQueryKey,
   useGetDealWatch,
@@ -48,14 +49,27 @@ function MessageGenerator({ subscription }: { subscription: Subscription }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messageType, setMessageType] = useState<"cancel" | "negotiate" | "downgrade" | "refund">("cancel");
   const [generatedMessage, setGeneratedMessage] = useState<string>("");
+  const [messageId, setMessageId] = useState<number | null>(null);
+  const [outcomeSent, setOutcomeSent] = useState(false);
   
   const generateMutation = useGenerateSubscriptionMessage({
     mutation: {
       onSuccess: (data) => {
         setGeneratedMessage(data.message);
+        setMessageId(data.id);
+        setOutcomeSent(false);
         toast.success("Message generated successfully");
       },
       onError: () => toast.error("Failed to generate message")
+    }
+  });
+
+  const outcomeMutation = useSetMessageOutcome({
+    mutation: {
+      onSuccess: () => {
+        setOutcomeSent(true);
+        toast.success("thanks, that helps other people using this app");
+      },
     }
   });
 
@@ -121,10 +135,33 @@ function MessageGenerator({ subscription }: { subscription: Subscription }) {
                   <Copy className="h-4 w-4" />
                 </Button>
               </div>
+
+              {messageId && !outcomeSent && (
+                <div className="pt-2 border-t space-y-2">
+                  <p className="text-sm text-muted-foreground">Did you send this? Let us know what happened.</p>
+                  <div className="flex gap-2 flex-wrap">
+                    <Button size="sm" variant="outline" onClick={() => outcomeMutation.mutate({ id: messageId, data: { outcome: "worked" } })}>
+                      it worked
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => outcomeMutation.mutate({ id: messageId, data: { outcome: "partial" } })}>
+                      partial win
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => outcomeMutation.mutate({ id: messageId, data: { outcome: "declined" } })}>
+                      they said no
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => outcomeMutation.mutate({ id: messageId, data: { outcome: "ignored" } })}>
+                      no reply
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {outcomeSent && (
+                <p className="text-sm text-muted-foreground pt-2 border-t">thanks for letting us know</p>
+              )}
             </div>
           ) : (
             <div className="bg-muted/50 rounded-lg p-6 text-center text-sm text-muted-foreground border border-dashed">
-              Click generate to create an AI-crafted email draft tailored for {subscription.name}.
+              Click generate to create an email draft for {subscription.name}.
             </div>
           )}
         </div>
