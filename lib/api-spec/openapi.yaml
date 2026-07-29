@@ -1450,8 +1450,10 @@ components:
 
     TaxEstimateInput:
       type: object
-      required: [annualIncome]
+      required: [sessionId, annualIncome]
       properties:
+        sessionId:
+          type: string
         annualIncome:
           type: number
         deductions80C:

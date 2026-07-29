@@ -656,6 +656,7 @@ export const GetLoanPayoffResponse = zod.object({
  * @summary Rough India income-tax estimate under old and new regimes (estimate only, not tax advice)
  */
 export const EstimateTaxBody = zod.object({
+  "sessionId": zod.string(),
   "annualIncome": zod.number(),
   "deductions80C": zod.number().optional().describe('Section 80C deductions (PF, ELSS, insurance, etc.) — old regime only'),
   "standardDeduction": zod.boolean().optional().describe('Whether to apply the standard deduction (default true)')

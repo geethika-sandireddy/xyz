@@ -9,6 +9,7 @@ import {
   DeleteLoanParams,
   GetLoanPayoffParams,
 } from "@workspace/api-zod";
+import { isProUser } from "../../lib/auth.js";
 
 const router: IRouter = Router();
 
@@ -40,6 +41,12 @@ router.post("/loans", async (req, res): Promise<void> => {
   const body = CreateLoanBody.safeParse(req.body);
   if (!body.success) {
     res.status(400).json({ error: body.error.message });
+    return;
+  }
+
+  const pro = await isProUser(body.data.sessionId);
+  if (!pro) {
+    res.status(402).json({ error: "loan tracking needs a pro plan" });
     return;
   }
 

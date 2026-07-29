@@ -15,6 +15,7 @@ import {
 } from "@workspace/api-zod";
 import { generateMessage } from "../../lib/messageTemplates.js";
 import { findMatchingDeals } from "../../lib/dealWatch.js";
+import { isProUser } from "../../lib/auth.js";
 
 // Category-specific advice for what a bundle/combo could replace these with.
 // Kept simple and India-relevant since that's who most detected services target.
@@ -268,6 +269,16 @@ router.post("/subscriptions/:id/message", async (req, res): Promise<void> => {
   if (!sub) {
     res.status(404).json({ error: "Subscription not found" });
     return;
+  }
+
+  // cancelling is always free, we never want to be the reason someone
+  // stays stuck paying for something. negotiate/downgrade/refund are pro.
+  if (body.data.messageType !== "cancel") {
+    const pro = await isProUser(sub.sessionId);
+    if (!pro) {
+      res.status(402).json({ error: "this message type needs a pro plan" });
+      return;
+    }
   }
 
   const message = generateMessage(

@@ -7,6 +7,7 @@
  */
 
 export interface TaxEstimateInput {
+  sessionId: string;
   annualIncome: number;
   /** Section 80C deductions (PF, ELSS, insurance, etc.) — old regime only */
   deductions80C?: number;
