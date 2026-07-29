@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import { EstimateTaxBody } from "@workspace/api-zod";
+import { isProUser } from "../../lib/auth.js";
 
 const router: IRouter = Router();
 
@@ -53,10 +54,16 @@ function oldRegimeTax(taxableIncome: number): number {
 }
 
 // POST /tax/estimate
-router.post("/tax/estimate", (req, res): void => {
+router.post("/tax/estimate", async (req, res): Promise<void> => {
   const body = EstimateTaxBody.safeParse(req.body);
   if (!body.success) {
     res.status(400).json({ error: body.error.message });
+    return;
+  }
+
+  const pro = await isProUser(body.data.sessionId);
+  if (!pro) {
+    res.status(402).json({ error: "tax estimator needs a pro plan" });
     return;
   }
 
