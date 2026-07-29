@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useSession } from "@/hooks/use-session";
 import { useEstimateTax } from "@workspace/api-client-react";
+import { toast } from "sonner";
 import { formatINR } from "@/lib/utils";
 import {
   Card, CardContent, CardDescription, CardHeader, CardTitle,
@@ -11,15 +13,27 @@ import { Badge } from "@/components/ui/badge";
 import { Receipt, Loader2, Info } from "lucide-react";
 
 export default function Tax() {
+  const sessionId = useSession();
   const [annualIncome, setAnnualIncome] = useState("");
   const [deductions80C, setDeductions80C] = useState("");
 
-  const estimateMutation = useEstimateTax();
+  const estimateMutation = useEstimateTax({
+    mutation: {
+      onError: (err: any) => {
+        if (err?.status === 402) {
+          toast.error("tax estimator is a pro feature - upgrade on the Account page");
+        } else {
+          toast.error("couldn't estimate, try again");
+        }
+      },
+    },
+  });
 
   const handleEstimate = () => {
     if (!annualIncome) return;
     estimateMutation.mutate({
       data: {
+        sessionId,
         annualIncome: parseFloat(annualIncome),
         deductions80C: parseFloat(deductions80C || "0"),
         standardDeduction: true,
