@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import { eq } from "drizzle-orm";
 import { db, usersTable, subscriptionsTable, renewalsTable, budgetProfileTable, fixedExpensesTable, financialGoalsTable, loansTable, savingsTable, negotiationMessagesTable, sharePlanRequestsTable } from "@workspace/db";
 import { SignupBody, LoginBody } from "@workspace/api-zod";
+import { getUserIdFromCookie, COOKIE_NAME } from "../../lib/auth.js";
 
 const router: IRouter = Router();
 
@@ -12,8 +13,6 @@ const SECRET = process.env.SESSION_SECRET;
 if (!SECRET) {
   throw new Error("SESSION_SECRET environment variable is required but was not provided.");
 }
-
-const COOKIE_NAME = "auth_token";
 
 function makeToken(userId: string) {
   return jwt.sign({ userId }, SECRET as string, { expiresIn: "30d" });
@@ -25,17 +24,6 @@ function setCookie(res: any, token: string) {
     sameSite: "lax",
     maxAge: 30 * 24 * 60 * 60 * 1000,
   });
-}
-
-function getUserIdFromCookie(req: any): string | null {
-  const token = req.cookies?.[COOKIE_NAME];
-  if (!token) return null;
-  try {
-    const payload = jwt.verify(token, SECRET as string) as { userId: string };
-    return payload.userId;
-  } catch {
-    return null;
-  }
 }
 
 router.post("/auth/signup", async (req, res): Promise<void> => {
@@ -58,7 +46,7 @@ router.post("/auth/signup", async (req, res): Promise<void> => {
 
   const token = makeToken(id);
   setCookie(res, token);
-  res.status(201).json({ id, email: body.data.email });
+  res.status(201).json({ id, email: body.data.email, plan: "free" });
 });
 
 router.post("/auth/login", async (req, res): Promise<void> => {
@@ -83,7 +71,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
 
   const token = makeToken(user.id);
   setCookie(res, token);
-  res.json({ id: user.id, email: user.email });
+  res.json({ id: user.id, email: user.email, plan: user.plan });
 });
 
 router.post("/auth/logout", (req, res): void => {
@@ -92,24 +80,19 @@ router.post("/auth/logout", (req, res): void => {
 });
 
 router.get("/auth/me", async (req, res): Promise<void> => {
-  const token = req.cookies?.[COOKIE_NAME];
-  if (!token) {
+  const userId = getUserIdFromCookie(req);
+  if (!userId) {
     res.json({ user: null });
     return;
   }
 
-  try {
-    const payload = jwt.verify(token, SECRET as string) as { userId: string };
-    const rows = await db.select().from(usersTable).where(eq(usersTable.id, payload.userId));
-    const user = rows[0];
-    if (!user) {
-      res.json({ user: null });
-      return;
-    }
-    res.json({ user: { id: user.id, email: user.email } });
-  } catch {
+  const rows = await db.select().from(usersTable).where(eq(usersTable.id, userId));
+  const user = rows[0];
+  if (!user) {
     res.json({ user: null });
+    return;
   }
+  res.json({ user: { id: user.id, email: user.email, plan: user.plan } });
 });
 
 // deletes the account and everything tied to it. no undo.
@@ -121,7 +104,7 @@ router.delete("/auth/me", async (req, res): Promise<void> => {
   }
 
   // sessionId doubles as the user id everywhere else, so this is just
-  // deleting every row in every table that matches it
+  // deleting every row in every table that matches it.
   // messages table only has subscriptionId, not sessionId, so grab the
   // subscription ids first and delete messages tied to those
   const mySubs = await db.select().from(subscriptionsTable).where(eq(subscriptionsTable.sessionId, userId));
