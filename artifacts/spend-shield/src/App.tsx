@@ -20,6 +20,8 @@ import Tax from '@/pages/tax';
 import SharePlans from '@/pages/share-plans';
 import LoginPage from '@/pages/login';
 import SignupPage from '@/pages/signup';
+import Account from '@/pages/account';
+import Privacy from '@/pages/privacy';
 
 const queryClient = new QueryClient();
 
@@ -77,6 +79,8 @@ function Router() {
         <Route path="/share-plans" component={needsAuth(SharePlans)} />
         <Route path="/login" component={LoginPage} />
         <Route path="/signup" component={SignupPage} />
+        <Route path="/account" component={needsAuth(Account)} />
+        <Route path="/privacy" component={Privacy} />
         <Route path="/savings" component={needsAuth(Savings)} />
         <Route component={NotFound} />
       </Switch>

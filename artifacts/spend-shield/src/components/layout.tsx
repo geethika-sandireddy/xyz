@@ -52,7 +52,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-3">
             {user ? (
               <>
-                <span className="hidden md:inline text-sm text-muted-foreground">{user.email}</span>
+                <Link href="/account" className="hidden md:inline text-sm text-muted-foreground hover:text-primary">{user.email}</Link>
                 <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => logout()}>
                   <LogOut className="w-4 h-4" /> <span className="hidden sm:inline">Log Out</span>
                 </Button>
@@ -72,8 +72,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
       <footer className="border-t py-8 mt-auto">
-        <div className="container mx-auto max-w-6xl px-4 text-center text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} SpendShield. Know where your money goes.
+        <div className="container mx-auto max-w-6xl px-4 text-center text-sm text-muted-foreground space-y-2">
+          <div>&copy; {new Date().getFullYear()} SpendShield. Know where your money goes.</div>
+          <Link href="/privacy" className="hover:text-primary underline underline-offset-4">Privacy</Link>
         </div>
       </footer>
     </div>
