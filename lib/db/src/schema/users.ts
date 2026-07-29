@@ -10,6 +10,7 @@ export const usersTable = pgTable("users", {
   id: text("id").primaryKey(),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
+  plan: text("plan").notNull().default("free"), // free | pro
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
