@@ -1,4 +1,6 @@
 import jwt from "jsonwebtoken";
+import { eq } from "drizzle-orm";
+import { db, usersTable } from "@workspace/db";
 
 const COOKIE_NAME = "auth_token";
 
@@ -18,3 +20,8 @@ export function getUserIdFromCookie(req: any): string | null {
 }
 
 export { COOKIE_NAME };
+
+export async function isProUser(userId: string): Promise<boolean> {
+  const rows = await db.select().from(usersTable).where(eq(usersTable.id, userId));
+  return rows[0]?.plan === "pro";
+}
