@@ -849,7 +849,8 @@ export const SignupBody = zod.object({
 
 export const SignupResponse = zod.object({
   "id": zod.string(),
-  "email": zod.string()
+  "email": zod.string(),
+  "plan": zod.enum(['free', 'pro'])
 })
 
 
@@ -863,7 +864,8 @@ export const LoginBody = zod.object({
 
 export const LoginResponse = zod.object({
   "id": zod.string(),
-  "email": zod.string()
+  "email": zod.string(),
+  "plan": zod.enum(['free', 'pro'])
 })
 
 
@@ -879,7 +881,8 @@ export const LogoutResponse = zod.unknown()
 export const GetMeResponse = zod.object({
   "user": zod.union([zod.object({
   "id": zod.string(),
-  "email": zod.string()
+  "email": zod.string(),
+  "plan": zod.enum(['free', 'pro'])
 }),zod.null()]).optional()
 })
 
@@ -888,5 +891,25 @@ export const GetMeResponse = zod.object({
  * @summary Permanently delete your account and everything tied to it
  */
 export const DeleteMeResponse = zod.unknown()
+
+
+/**
+ * @summary DEMO ONLY — flips your account to pro. No real payment processor is connected, no money moves.
+ */
+export const UpgradeToProResponse = zod.object({
+  "id": zod.string(),
+  "email": zod.string(),
+  "plan": zod.enum(['free', 'pro'])
+})
+
+
+/**
+ * @summary Go back to the free plan
+ */
+export const DowngradeToFreeResponse = zod.object({
+  "id": zod.string(),
+  "email": zod.string(),
+  "plan": zod.enum(['free', 'pro'])
+})
 
 

@@ -565,9 +565,18 @@ export interface AuthInput {
   password: string;
 }
 
+export type AuthUserPlan = typeof AuthUserPlan[keyof typeof AuthUserPlan];
+
+
+export const AuthUserPlan = {
+  free: 'free',
+  pro: 'pro',
+} as const;
+
 export interface AuthUser {
   id: string;
   email: string;
+  plan: AuthUserPlan;
 }
 
 export type ListSubscriptionsParams = {

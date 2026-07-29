@@ -11,6 +11,7 @@ export * from './addSubscriptionInputCategory';
 export * from './addSubscriptionInputFrequency';
 export * from './authInput';
 export * from './authUser';
+export * from './authUserPlan';
 export * from './billAnalysisInput';
 export * from './billAnalysisResult';
 export * from './budgetProfile';

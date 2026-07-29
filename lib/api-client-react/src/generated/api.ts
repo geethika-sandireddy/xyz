@@ -3739,3 +3739,145 @@ export const useDeleteMe = <TError = ErrorType<void>,
       return useMutation(getDeleteMeMutationOptions(options));
     }
 
+export const getUpgradeToProUrl = () => {
+
+
+
+
+  return `/api/billing/upgrade`
+}
+
+/**
+ * @summary DEMO ONLY — flips your account to pro. No real payment processor is connected, no money moves.
+ */
+export const upgradeToPro = async ( options?: RequestInit): Promise<AuthUser> => {
+
+  return customFetch<AuthUser>(getUpgradeToProUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getUpgradeToProMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upgradeToPro>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof upgradeToPro>>, TError,void, TContext> => {
+
+const mutationKey = ['upgradeToPro'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof upgradeToPro>>, void> = () => {
+
+
+          return  upgradeToPro(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpgradeToProMutationResult = NonNullable<Awaited<ReturnType<typeof upgradeToPro>>>
+
+    export type UpgradeToProMutationError = ErrorType<void>
+
+    /**
+ * @summary DEMO ONLY — flips your account to pro. No real payment processor is connected, no money moves.
+ */
+export const useUpgradeToPro = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upgradeToPro>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof upgradeToPro>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getUpgradeToProMutationOptions(options));
+    }
+
+export const getDowngradeToFreeUrl = () => {
+
+
+
+
+  return `/api/billing/downgrade`
+}
+
+/**
+ * @summary Go back to the free plan
+ */
+export const downgradeToFree = async ( options?: RequestInit): Promise<AuthUser> => {
+
+  return customFetch<AuthUser>(getDowngradeToFreeUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getDowngradeToFreeMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof downgradeToFree>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof downgradeToFree>>, TError,void, TContext> => {
+
+const mutationKey = ['downgradeToFree'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof downgradeToFree>>, void> = () => {
+
+
+          return  downgradeToFree(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DowngradeToFreeMutationResult = NonNullable<Awaited<ReturnType<typeof downgradeToFree>>>
+
+    export type DowngradeToFreeMutationError = ErrorType<void>
+
+    /**
+ * @summary Go back to the free plan
+ */
+export const useDowngradeToFree = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof downgradeToFree>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof downgradeToFree>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getDowngradeToFreeMutationOptions(options));
+    }
+

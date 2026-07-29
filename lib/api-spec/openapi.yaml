@@ -20,6 +20,8 @@ tags:
     description: Community-submitted deal tips
   - name: auth
     description: Signup, login, current user
+  - name: billing
+    description: Plan info and upgrading (demo only, no payment processor connected yet)
   - name: savings
     description: Savings tracking
   - name: renewals
@@ -967,6 +969,36 @@ paths:
         "401":
           description: not logged in
 
+  /billing/upgrade:
+    post:
+      operationId: upgradeToPro
+      tags: [billing]
+      summary: DEMO ONLY — flips your account to pro. No real payment processor is connected, no money moves.
+      responses:
+        "200":
+          description: updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: not logged in
+
+  /billing/downgrade:
+    post:
+      operationId: downgradeToFree
+      tags: [billing]
+      summary: Go back to the free plan
+      responses:
+        "200":
+          description: updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: not logged in
+
 components:
   schemas:
     HealthStatus:
@@ -1574,9 +1606,12 @@ components:
 
     AuthUser:
       type: object
-      required: [id, email]
+      required: [id, email, plan]
       properties:
         id:
           type: string
         email:
           type: string
+        plan:
+          type: string
+          enum: [free, pro]

@@ -5,10 +5,11 @@
  * SpendShield API — subscription analyzer and savings tracker
  * OpenAPI spec version: 0.1.0
  */
-import type { AuthUserPlan } from './authUserPlan';
 
-export interface AuthUser {
-  id: string;
-  email: string;
-  plan: AuthUserPlan;
-}
+export type AuthUserPlan = typeof AuthUserPlan[keyof typeof AuthUserPlan];
+
+
+export const AuthUserPlan = {
+  free: 'free',
+  pro: 'pro',
+} as const;
