@@ -63,7 +63,13 @@ function MessageGenerator({ subscription }: { subscription: Subscription }) {
         setOutcomeSent(false);
         toast.success("Message generated successfully");
       },
-      onError: () => toast.error("Failed to generate message")
+      onError: (err: any) => {
+        if (err?.status === 402) {
+          toast.error("this message type is a pro feature - cancel is still free, upgrade for negotiate/downgrade/refund");
+        } else {
+          toast.error("Failed to generate message");
+        }
+      }
     }
   });
 

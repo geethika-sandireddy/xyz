@@ -41,6 +41,13 @@ function AddLoanDialog({ sessionId }: { sessionId: string }) {
         setIsOpen(false);
         setLabel(""); setPrincipal(""); setOutstandingBalance(""); setInterestRate(""); setEmiAmount("");
       },
+      onError: (err: any) => {
+        if (err?.status === 402) {
+          toast.error("loan tracking is a pro feature - upgrade on the Account page");
+        } else {
+          toast.error("couldn't add that loan, try again");
+        }
+      },
     },
   });
 
