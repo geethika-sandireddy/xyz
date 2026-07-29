@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { useGetMe, useSignup, useLogin, useLogout } from "@workspace/api-client-react";
+import { useGetMe, useSignup, useLogin, useLogout, type AuthUser as ApiAuthUser } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
-type AuthUser = { id: string; email: string } | null;
+type AuthUser = ApiAuthUser | null;
 
 type AuthContextValue = {
   user: AuthUser;
@@ -10,6 +10,7 @@ type AuthContextValue = {
   signup: (email: string, password: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (user: AuthUser) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -54,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signup, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, signup, login, logout, updateUser: setUser }}>
       {children}
     </AuthContext.Provider>
   );
