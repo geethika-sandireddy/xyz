@@ -4,24 +4,27 @@
 
 ## What It Does
 
-1. **Paste your bank statement text** — copy the relevant transactions in, no account linking required
-2. **Pattern-matches recurring charges** — Netflix, Spotify, gym, insurance, cloud storage, and more, checked against known pricing ranges
-3. **Flags wasteful subscriptions** — unused, duplicate, or overpriced ones get highlighted
-4. **Drafts negotiation messages** — one click generates a polite but firm cancellation or discount request
-5. **Tracks money saved** — log every win and watch your savings grow
-6. **Renewal Watch** — track free trials and upcoming renewals so you're reminded *before* you get charged, not after. Cancelling in time auto-logs the saved amount to your Savings ledger.
-7. **Budget** — set your monthly income and savings target, log fixed expenses (rent, electricity, petrol, EMIs), add financial goals (e.g. a home down payment), and see your real remaining balance after subscriptions are factored in.
-8. **Refund Hunter** — draft a refund request when you got charged after forgetting to cancel in time.
-9. **Price-Hike Detector** — update a subscription's billed amount and it's automatically flagged if the price silently went up, with the old price shown struck through.
-10. **Bundle Optimizer** — flags when you have 2+ active subscriptions in the same category (e.g. multiple streaming services) that might be cheaper as a bundle.
-11. **Deal Watch** — cross-references your active subscriptions against a curated deals database (student/family plans, bundle offers, off-peak pricing) to surface savings you might not know about.
-12. **Loans** — track EMIs and see an amortization-based payoff timeline (months remaining, interest left) for each loan.
-13. **Tax Estimator** — a rough India old-vs-new-regime tax comparison based on your income and 80C investments (estimate only, not tax advice).
-14. **Calendar export** — download a `.ics` file for any tracked renewal so you get a reminder even outside the app.
-15. **Regret Score** — if you dismiss a flag and keep a subscription active more than once, you'll see a gentle nudge asking if it's really worth it.
-16. **Share a Plan** — post that you're open to splitting a family/group plan, or search for someone else already looking.
+1. **Real accounts** — email/password signup, your data is tied to your account, not a random id in your browser
+2. **Paste your bank statement text** — copy the relevant transactions in, no bank login required
+3. **Pattern-matches recurring charges** — Netflix, Spotify, gym, insurance, cloud storage, and more, checked against known pricing ranges
+4. **Add anything the detector missed** — the pattern matcher only knows a fixed list of services, so you can manually add whatever it didn't catch
+5. **Flags wasteful subscriptions** — unused, duplicate, or overpriced ones get highlighted
+6. **Drafts negotiation messages** — one click generates a cancellation, negotiation, downgrade, or refund request email
+7. **Tracks what actually works** — after sending a message, report the outcome. Win rates per service show up on your dashboard, so the app gets more useful the more people use it, not just for you
+8. **Tracks money saved** — log every win and watch your savings grow
+9. **Renewal Watch** — track free trials and upcoming renewals so you're reminded *before* you get charged, not after. Cancelling in time auto-logs the saved amount to your Savings ledger, plus a `.ics` calendar download as backup
+10. **Budget** — set your monthly income and savings target, log fixed expenses (rent, electricity, petrol, EMIs), add financial goals (e.g. a home down payment), and see your real remaining balance after subscriptions are factored in
+11. **Refund Hunter** — draft a refund request when you got charged after forgetting to cancel in time
+12. **Price-Hike Detector** — update a subscription's billed amount and it's automatically flagged if the price silently went up, with the old price shown struck through
+13. **Bundle Optimizer** — flags when you have 2+ active subscriptions in the same category (e.g. multiple streaming services) that might be cheaper as a bundle
+14. **Deal Watch** — a curated deals list (student/family plans, bundle offers, off-peak pricing) plus deal tips other users have posted for the same service
+15. **Loans** — track EMIs and see an amortization-based payoff timeline (months remaining, interest left) for each loan
+16. **Tax Estimator** — a rough India old-vs-new-regime tax comparison based on your income and 80C investments (estimate only, not tax advice)
+17. **Regret Score** — if you dismiss a flag and keep a subscription active more than once, you'll see a gentle nudge asking if it's really worth it
+18. **Share a Plan** — post that you're open to splitting a family/group plan, or search for someone else already looking
+19. **Delete your account** any time, from the Account page — removes everything tied to it, immediately, no undo
 
-No sample or demo data ships with this project — the database is empty until you paste in your own statement.
+No sample or demo data ships with this project — the database is empty until you sign up and start entering your own numbers. See [Privacy](artifacts/spend-shield/src/pages/privacy.tsx) for exactly what is and isn't stored.
 
 ## Tech Stack
 
@@ -63,7 +66,7 @@ pnpm install
 
 # 2. Set up the API server's environment
 cp artifacts/api-server/.env.example artifacts/api-server/.env
-# open that file and fill in your real DATABASE_URL
+# open that file and fill in your real DATABASE_URL and a random SESSION_SECRET
 
 # 3. Set up the frontend's environment (defaults are fine for local dev)
 cp artifacts/spend-shield/.env.example artifacts/spend-shield/.env
@@ -123,6 +126,17 @@ pnpm run build        # typecheck + production build of everything
 | `GET` | `/api/share-plans` | List your own requests, or search for others by service |
 | `POST` | `/api/share-plans` | Post that you're open to splitting a plan |
 | `DELETE` | `/api/share-plans/:id` | Withdraw a share request |
+| `POST` | `/api/subscriptions` | Manually add a subscription the detector missed |
+| `PATCH` | `/api/messages/:id/outcome` | Report if a sent message worked |
+| `GET` | `/api/messages/stats` | Win rate per service, based on reported outcomes |
+| `GET` | `/api/deals` | List community-submitted deal tips |
+| `POST` | `/api/deals` | Post a deal tip |
+| `POST` | `/api/deals/:id/upvote` | Upvote a deal tip |
+| `POST` | `/api/auth/signup` | Create an account |
+| `POST` | `/api/auth/login` | Log in |
+| `POST` | `/api/auth/logout` | Log out |
+| `GET` | `/api/auth/me` | Get the current logged-in user |
+| `DELETE` | `/api/auth/me` | Permanently delete your account and all its data |
 
 ## Environment Variables
 
@@ -130,6 +144,7 @@ pnpm run build        # typecheck + production build of everything
 ```env
 DATABASE_URL=postgresql://...
 PORT=5000
+SESSION_SECRET=some_long_random_string
 ```
 
 `artifacts/spend-shield/.env`:
@@ -154,6 +169,11 @@ BASE_PATH=/
 - [x] Loans & tax section (estimate only, not financial/tax advice)
 - [x] "Regret score" — nudge for subscriptions repeatedly kept despite being flagged
 - [x] Family/shared plan matcher
+- [x] Real accounts — email/password, password hashing, session cookies
+- [x] Account deletion, with a page describing exactly what's stored
+- [x] Manually add a subscription the detector missed
+- [x] Community-submitted deal tips
+- [x] Negotiation outcome tracking — report if a message worked, see win rate per service
 - [ ] PDF statement upload (currently paste-only)
 - [ ] Email/screenshot auto-parsing for trial signups (no manual entry)
 - [ ] v2: AI-assisted extraction for messier/non-standard statement formats
